@@ -75,7 +75,6 @@
 \       Type: Variable
 \   Category: Keyboard
 \    Summary: Lookup table for Delta 14B joystick buttons
-\  Deep dive: Delta 14B joystick support
 \
 \ ------------------------------------------------------------------------------
 \
@@ -97,21 +96,21 @@
 
 .b_table
 
- EQUB &61               \ Left column    Top row              Slow down        B
- EQUB &51               \ Middle column  Top row              Fire lasers      C
- EQUB &31               \ Right column   Top row              Speed up         D
+ EQUB &61               \ Left column    Top row              A
+ EQUB &51               \ Middle column  Top row              B
+ EQUB &31               \ Right column   Top row              C
 
- EQUB &62               \ Left column    Second row           Unarm missile    E
- EQUB &52               \ Middle column  Second row           Fire missile     F
- EQUB &32               \ Right column   Second row           Arm missile      G
+ EQUB &62               \ Left column    Second row           D
+ EQUB &52               \ Middle column  Second row           E
+ EQUB &32               \ Right column   Second row           F
 
- EQUB &64               \ Left column    Third row            Front view       H
- EQUB &54               \ Middle column  Third row            E.C.M.           I
- EQUB &34               \ Right column   Third row            Rear view        J
+ EQUB &64               \ Left column    Third row            G
+ EQUB &54               \ Middle column  Third row            H
+ EQUB &34               \ Right column   Third row            I
 
- EQUB &68               \ Left column    Bottom row           Cancel docking   K
- EQUB &58               \ Middle column  Bottom row           In-system jump   L
- EQUB &38               \ Right column   Bottom row           Docking computer M
+ EQUB &68               \ Left column    Bottom row           J
+ EQUB &58               \ Middle column  Bottom row           K
+ EQUB &38               \ Right column   Bottom row           L
 
 \ ******************************************************************************
 \
@@ -119,7 +118,6 @@
 \       Type: Subroutine
 \   Category: Keyboard
 \    Summary: Scan the Delta 14B joystick buttons
-\  Deep dive: Delta 14B joystick support
 \
 \ ------------------------------------------------------------------------------
 \
