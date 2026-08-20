@@ -7,7 +7,7 @@ This simple test loops through the keypads on both Delta 14B keypads, row by row
 Capital letters indicate button presses on the rear socket, lower case letters indicate button presses on the  side socket. Letters A-L are allocated to each button as follows:
 
 ```
-Side socket          Rear socket
+Rear socket          Side socket
 
  B       B            b       b
  A   B   C            a   b   c
