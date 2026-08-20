@@ -26,6 +26,21 @@
 \
 \ ******************************************************************************
 
+ ORG &0070
+
+.SC
+
+ SKIP 2                 \ Screen address
+
+\ ******************************************************************************
+\
+\       Name: ENTRY
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: The entry point for the tool
+\
+\ ******************************************************************************
+
  ORG CODE%              \ Set the assembly address to CODE%
 
 .ENTRY
@@ -37,11 +52,37 @@
                         \ interested in) and PB0 to PB3 as input (so we can read
                         \ from the button rows)
 
- LDA #'O'               \ Print "OK" and a newline
- JSR OSWRCH
- LDA #'K'
- JSR OSWRCH
- JSR OSNEWL
+ LDX #0                 \ Set a counter to work through the VDU commands in the
+                        \ vduCommands table
+
+.lvdu1
+
+ LDA vduCommands,X      \ Set A to the X-th command from the vduCommands table
+
+ CMP #255               \ If A = 255 then we have reached the end of the table,
+ BEQ lvdu2              \ so jump to lvdu2 to exit the loop
+
+ JSR OSWRCH             \ Print the VDU command in A
+
+ INX                    \ Increment the loop counter in X
+
+ BNE lvdu1              \ Loop back until we have printed all the VDU commands
+
+.lvdu2
+
+ LDY #1                 \ Set a counter to work through the buttons on the Delta
+                        \ 14B, starting from A = 1
+
+.lvdu3
+
+ JSR PrintRearLetter    \ Print the letter for the rear stick
+
+ JSR PrintSideLetter    \ Print the letter for the side stick
+
+ INY                    \ Increment the button counter
+
+ CPY #13                \ Loop back until we have printed buttons 1 to 12
+ BCC lvdu3
 
 .loop1
 
@@ -68,6 +109,266 @@
  BCS loop1              \ If no key is being pressed, keep looping
 
  RTS                    \ Quit program
+
+\ ******************************************************************************
+\
+\       Name: vduCommands
+\       Type: Variable
+\   Category: Screen
+\    Summary: VDU codes for setting up the mode 7 screen
+\
+\ ******************************************************************************
+
+.vduCommands
+
+ EQUB 22, 7             \ Switch to screen mode 7
+
+ EQUB 23, 0, 10, 32     \ Disable cursor
+ EQUB 0, 0, 0
+ EQUB 0, 0, 0
+
+ EQUB 4                 \ VDU 4
+                        \
+                        \ Write text at the text cursor
+
+ EQUB 31, 4, 0          \ VDU 31, 4, 0
+                        \
+                        \ Move the text cursor to (4, 0)
+
+ EQUS "Rear socket"     \ Print text
+
+ EQUB 31, 25, 0         \ VDU 31, 25, 0
+                        \
+                        \ Move the text cursor to (25, 0)
+
+ EQUS "Side socket"     \ Print text
+
+ EQUB 255               \ End token
+
+\ ******************************************************************************
+\
+\       Name: MODEADDR
+\       Type: Macro
+\   Category: Screen
+\    Summary: Convert a character coordinate into a mode 7 screen address
+\
+\ ******************************************************************************
+
+MACRO MODEADDR x, y
+
+ EQUB LO(&7C00 + 40 * y + x)
+ EQUB HI(&7C00 + 40 * y + x)
+
+ENDMACRO
+
+\ ******************************************************************************
+\
+\       Name: rearXY
+\       Type: Variable
+\   Category: Screen
+\    Summary: Screen addresses for button letters for the rear stick
+\
+\ ******************************************************************************
+
+.rearXY
+
+ MODEADDR  5,  9        \ A
+ MODEADDR  9,  9        \ B
+ MODEADDR 13,  9        \ C
+ MODEADDR  5, 10        \ D
+ MODEADDR  9, 10        \ E
+ MODEADDR 13, 10        \ F
+ MODEADDR  5, 11        \ G
+ MODEADDR  9, 11        \ H
+ MODEADDR 13, 11        \ I
+ MODEADDR  5, 12        \ J
+ MODEADDR  9, 12        \ K
+ MODEADDR 13, 12        \ L
+
+\ ******************************************************************************
+\
+\       Name: rearB
+\       Type: Variable
+\   Category: Screen
+\    Summary: Screen addresses for the two extra fire buttons for the rear stick
+\
+\ ******************************************************************************
+
+.rearB
+
+ MODEADDR  5,  8        \ B top-left
+ MODEADDR 13,  8        \ B top-right
+
+\ ******************************************************************************
+\
+\       Name: sideXY
+\       Type: Variable
+\   Category: Screen
+\    Summary: Screen addresses for button letters for the side stick
+\
+\ ******************************************************************************
+
+.sideXY
+
+ MODEADDR 26,  9        \ a
+ MODEADDR 30,  9        \ b
+ MODEADDR 34,  9        \ c
+ MODEADDR 26, 10        \ d
+ MODEADDR 30, 10        \ e
+ MODEADDR 34, 10        \ f
+ MODEADDR 26, 11        \ g
+ MODEADDR 30, 11        \ h
+ MODEADDR 34, 11        \ i
+ MODEADDR 26, 12        \ j
+ MODEADDR 30, 12        \ k
+ MODEADDR 34, 12        \ l
+
+\ ******************************************************************************
+\
+\       Name: sideB
+\       Type: Variable
+\   Category: Screen
+\    Summary: Screen addresses for the two extra fire buttons for the side stick
+\
+\ ******************************************************************************
+
+.sideB
+
+ MODEADDR 26,  8        \ b top-left
+ MODEADDR 34,  8        \ b top-right
+
+\ ******************************************************************************
+\
+\       Name: yStore
+\       Type: Variable
+\   Category: Screen
+\    Summary: Temporary storage for the Y register
+\
+\ ******************************************************************************
+
+.yStore
+
+ EQUB 0
+
+\ ******************************************************************************
+\
+\       Name: PrintRearLetter
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Print the rear stick letter defined in A, where A = 1 for the
+\             first button
+\
+\ ******************************************************************************
+
+.PrintRearLetter
+
+ STY yStore             \ Store Y
+
+ TYA                    \ Set X = Y * 2 to use as an index into rearXY
+ ASL A
+ TAX
+
+ TYA                    \ Set Y = capital "A" to "L"
+ CLC
+ ADC #'A' - 1
+ TAY
+
+ LDA rearXY-2,X         \ Set SC(1 0) to the X-th address from rearXY
+ STA SC
+ LDA rearXY-1,X
+ STA SC+1
+
+ TYA                    \ Poke the letter into screen memory
+ LDY #0
+ STA (SC),Y
+
+ CMP #'B'               \ If we are not printing the fire button, jump to rear1
+ BNE rear1              \ to return from the subroutine
+
+ LDA rearB              \ Set SC(1 0) = rearB
+ STA SC
+ LDA rearB+1
+ STA SC+1
+
+ LDA #'B'               \ Print the top-left "B"
+ LDY #0
+ STA (SC),Y
+
+ LDA rearB+2            \ Set SC(1 0) = rearB+2
+ STA SC
+ LDA rearB+3
+ STA SC+1
+
+ LDA #'B'               \ Print the top-right "B"
+ LDY #0
+ STA (SC),Y
+
+.rear1
+
+ LDY yStore             \ Retrieve Y
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: PrintSideLetter
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Print the side stick letter defined in A, where A = 1 for the
+\             first button
+\
+\ ******************************************************************************
+
+.PrintSideLetter
+
+                        \ Print rear button letter for offset A, where A = 1 for the first button
+
+ STY yStore             \ Store Y
+
+ TYA                    \ Set X = Y * 2 to use as an index into rearXY
+ ASL A
+ TAX
+
+ TYA                    \ Set Y = capital "A" to "L"
+ CLC
+ ADC #'a' - 1
+ TAY
+
+ LDA sideXY-2,X         \ Set SC(1 0) to the X-th address from rearXY
+ STA SC
+ LDA sideXY-1,X
+ STA SC+1
+
+ TYA                    \ Poke the letter into screen memory
+ LDY #0
+ STA (SC),Y
+
+ CMP #'b'               \ If we are not printing the fire button, jump to side1
+ BNE side1              \ to return from the subroutine
+
+ LDA sideB              \ Set SC(1 0) = sideB
+ STA SC
+ LDA sideB+1
+ STA SC+1
+
+ LDA #'b'               \ Print the top-left "b"
+ LDY #0
+ STA (SC),Y
+
+ LDA sideB+2            \ Set SC(1 0) = sideB+2
+ STA SC
+ LDA sideB+3
+ STA SC+1
+
+ LDA #'b'               \ Print the top-right "b"
+ LDY #0
+ STA (SC),Y
+
+.side1
+
+ LDY yStore             \ Retrieve Y
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
