@@ -18,6 +18,8 @@ Side socket          Rear socket
 
 Requires a BBC Micro or BBC Master with a Voltmace 14B/1 adaptor box and at least one Voltmace Delta 14B joystick. Also works on the 6502 Second Processor.
 
+You can build the SSD disc image with `make`.
+
 ---
 
 _Mark Moxon_

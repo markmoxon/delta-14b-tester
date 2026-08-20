@@ -1,0 +1,63 @@
+.ENTRY
+     2400   A9 F0      LDA #&F0
+     2402   8D 62 FE   STA &FE62
+     2405   A9 4F      LDA #&4F
+     2407   20 EE FF   JSR &FFEE
+     240A   A9 4B      LDA #&4B
+     240C   20 EE FF   JSR &FFEE
+     240F   20 E7 FF   JSR &FFE7
+.loop1
+     2412   A0 0C      LDY #&0C
+.loop2
+     2414   A9 80      LDA #&80
+     2416   20 36 24   JSR &2436
+     2419   88         DEY
+     241A   D0 F8      BNE &2414
+     241C   A9 81      LDA #&81
+     241E   A2 00      LDX #&00
+     2420   A0 00      LDY #&00
+     2422   20 F4 FF   JSR &FFF4
+     2425   B0 EB      BCS &2412
+     2427   60         RTS
+.b_table
+     2428   61
+     2429   51
+     242A   31
+     242B   62
+     242C   52
+     242D   32
+     242E   64
+     242F   54
+     2430   34
+     2431   68
+     2432   58
+     2433   38
+.b_13
+     2434   A9 00      LDA #&00
+.b_14
+     2436   AA         TAX
+     2437   59 27 24   EOR &2427,Y
+     243A   F0 0D      BEQ &2449
+     243C   8D 60 FE   STA &FE60
+     243F   29 0F      AND #&0F
+     2441   2D 60 FE   AND &FE60
+     2444   F0 04      BEQ &244A
+     2446   8A         TXA
+     2447   30 EB      BMI &2434
+.b_quit
+     2449   60         RTS
+.b_pressed
+     244A   8A         TXA
+     244B   30 08      BMI &2455
+     244D   98         TYA
+     244E   18         CLC
+     244F   69 40      ADC #&40
+     2451   20 EE FF   JSR &FFEE
+     2454   60         RTS
+.b_side
+     2455   98         TYA
+     2456   18         CLC
+     2457   69 60      ADC #&60
+     2459   20 EE FF   JSR &FFEE
+     245C   60         RTS
+Saving file 'DELTEST'
