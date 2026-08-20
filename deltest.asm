@@ -93,15 +93,6 @@
 \   &4 = %0100 = third row
 \   &8 = %1000 = bottom row
 \
-\ This results in the following mapping (as the top two fire buttons are treated
-\ the same as the top button in the middle row):
-\
-\   Fire laser                                    Fire laser
-\   Slow down              Fire laser             Speed up
-\   Unarm Missile          Fire Missile           Target missile
-\   Front view             E.C.M.                 Rear view
-\   Docking computer on    In-system jump         Docking computer off
-\
 \ ******************************************************************************
 
 .b_table
@@ -134,15 +125,6 @@
 \
 \ Scan the Delta 14B for the flight key given in register Y, where Y is the
 \ offset into the KYTB table above (so this is the same approach as in DKS1).
-\
-\ The keys on the Delta 14B are laid out as follows (the top two fire buttons
-\ are treated the same as the top button in the middle row):
-\
-\   Fire laser                                    Fire laser
-\   Slow down              Fire laser             Speed up
-\   Unarm Missile          Fire Missile           Target missile
-\   Front view             E.C.M.                 Rear view
-\   Docking computer on    In-system jump         Docking computer off
 \
 \ ------------------------------------------------------------------------------
 \
