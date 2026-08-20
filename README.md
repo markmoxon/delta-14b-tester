@@ -1,6 +1,6 @@
 ## Voltmace Delta 14B joystick tester
 
-Press Shift-BREAK or enter `*DELTEST` to run the test program.
+Load the deltest.ssd into your machine via a Gotek or SD card, and press Shift-BREAK or enter `*DELTEST` to run the test program.
 
 This simple test loops through the keypads on both Delta 14B keypads, row by row and top to bottom, and prints a letter when a button is held down.
 
