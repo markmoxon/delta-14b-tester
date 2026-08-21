@@ -5,7 +5,7 @@
      2402   8D 62 FE   STA &FE62
      2405   A2 00      LDX #&00
 .lvdu1
-     2407   BD 37 24   LDA &2437,X
+     2407   BD 3B 24   LDA &243B,X
      240A   C9 FF      CMP #&FF
      240C   F0 06      BEQ &2414
      240E   20 EE FF   JSR &FFEE
@@ -14,274 +14,178 @@
 .lvdu2
      2414   A0 01      LDY #&01
 .lvdu3
-     2416   20 9A 24   JSR &249A
-     2419   20 DC 24   JSR &24DC
-     241C   C8         INY
-     241D   C0 0D      CPY #&0D
-     241F   90 F5      BCC &2416
+     2416   A2 00      LDX #&00
+     2418   20 AA 24   JSR &24AA
+     241B   A2 01      LDX #&01
+     241D   20 AA 24   JSR &24AA
+     2420   C8         INY
+     2421   C0 0D      CPY #&0D
+     2423   90 F1      BCC &2416
 .loop1
-     2421   A0 0C      LDY #&0C
+     2425   A0 0C      LDY #&0C
 .loop2
-     2423   A9 80      LDA #&80
-     2425   20 2C 25   JSR &252C
-     2428   88         DEY
-     2429   D0 F8      BNE &2423
-     242B   A9 81      LDA #&81
-     242D   A2 00      LDX #&00
-     242F   A0 00      LDY #&00
-     2431   20 F4 FF   JSR &FFF4
-     2434   B0 EB      BCS &2421
-     2436   60         RTS
+     2427   A9 80      LDA #&80
+     2429   20 25 25   JSR &2525
+     242C   88         DEY
+     242D   D0 F8      BNE &2427
+     242F   A9 81      LDA #&81
+     2431   A2 00      LDX #&00
+     2433   A0 00      LDY #&00
+     2435   20 F4 FF   JSR &FFF4
+     2438   B0 EB      BCS &2425
+     243A   60         RTS
 .vduCommands
-     2437   16
-     2438   07
-     2439   17
-     243A   00
-     243B   0A
-     243C   20
-     243D   00
+     243B   16
+     243C   06
+     243D   17
      243E   00
-     243F   00
-     2440   00
+     243F   0A
+     2440   20
      2441   00
      2442   00
-     2443   04
-     2444   1F
-     2445   04
+     2443   00
+     2444   00
+     2445   00
      2446   00
-     2447   52 65 61 ...
-     2452   1F
-     2453   19
-     2454   00
-     2455   53 69 64 ...
-     2460   FF
-.rearXY
-Macro MODEADDR:
-     2461   6D
-     2462   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2463   71
-     2464   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2465   75
-     2466   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2467   95
-     2468   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2469   99
-     246A   7D
-End macro MODEADDR
-Macro MODEADDR:
-     246B   9D
-     246C   7D
-End macro MODEADDR
-Macro MODEADDR:
-     246D   BD
-     246E   7D
-End macro MODEADDR
-Macro MODEADDR:
-     246F   C1
-     2470   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2471   C5
-     2472   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2473   E5
-     2474   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2475   E9
-     2476   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2477   ED
-     2478   7D
-End macro MODEADDR
-.rearB
-Macro MODEADDR:
-     2479   45
-     247A   7D
-End macro MODEADDR
-Macro MODEADDR:
-     247B   4D
-     247C   7D
-End macro MODEADDR
-.sideXY
-Macro MODEADDR:
-     247D   82
-     247E   7D
-End macro MODEADDR
-Macro MODEADDR:
-     247F   86
-     2480   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2481   8A
-     2482   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2483   AA
-     2484   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2485   AE
-     2486   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2487   B2
-     2488   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2489   D2
-     248A   7D
-End macro MODEADDR
-Macro MODEADDR:
-     248B   D6
-     248C   7D
-End macro MODEADDR
-Macro MODEADDR:
-     248D   DA
-     248E   7D
-End macro MODEADDR
-Macro MODEADDR:
-     248F   FA
-     2490   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2491   FE
-     2492   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2493   02
-     2494   7E
-End macro MODEADDR
-.sideB
-Macro MODEADDR:
-     2495   5A
-     2496   7D
-End macro MODEADDR
-Macro MODEADDR:
-     2497   62
-     2498   7D
-End macro MODEADDR
+     2447   04
+     2448   1F
+     2449   04
+     244A   00
+     244B   52 65 61 ...
+     2456   1F
+     2457   19
+     2458   00
+     2459   53 69 64 ...
+     2464   1F
+     2465   00
+     2466   0E
+     2467   2D 2D 2D ...
+     2471   2D 2D 2D ...
+     247B   2D 2D 2D ...
+     2485   2D 2D 2D ...
+     248F   FF
+.buttonX
+     2490   05
+     2491   09
+     2492   0D
+     2493   05
+     2494   09
+     2495   0D
+     2496   05
+     2497   09
+     2498   0D
+     2499   05
+     249A   09
+     249B   0D
+.buttonY
+     249C   09
+     249D   09
+     249E   09
+     249F   0A
+     24A0   0A
+     24A1   0A
+     24A2   0B
+     24A3   0B
+     24A4   0B
+     24A5   0C
+     24A6   0C
+     24A7   0C
 .yStore
-     2499   00
+     24A8   00
+.xIndent
+     24A9   00
 .PrintRearLetter
-     249A   8C 99 24   STY &2499
-     249D   98         TYA
-     249E   0A         ASL A
-     249F   AA         TAX
-     24A0   98         TYA
-     24A1   18         CLC
-     24A2   69 40      ADC #&40
-     24A4   A8         TAY
-     24A5   BD 5F 24   LDA &245F,X
-     24A8   85 70      STA &70
-     24AA   BD 60 24   LDA &2460,X
-     24AD   85 71      STA &71
-     24AF   98         TYA
-     24B0   A0 00      LDY #&00
-     24B2   91 70      STA (&70),Y
-     24B4   C9 42      CMP #&42
-     24B6   D0 20      BNE &24D8
-     24B8   AD 79 24   LDA &2479
-     24BB   85 70      STA &70
-     24BD   AD 7A 24   LDA &247A
-     24C0   85 71      STA &71
-     24C2   A9 42      LDA #&42
-     24C4   A0 00      LDY #&00
-     24C6   91 70      STA (&70),Y
-     24C8   AD 7B 24   LDA &247B
-     24CB   85 70      STA &70
-     24CD   AD 7C 24   LDA &247C
-     24D0   85 71      STA &71
-     24D2   A9 42      LDA #&42
-     24D4   A0 00      LDY #&00
-     24D6   91 70      STA (&70),Y
-.rear1
-     24D8   AC 99 24   LDY &2499
-     24DB   60         RTS
-.PrintSideLetter
-     24DC   8C 99 24   STY &2499
-     24DF   98         TYA
-     24E0   0A         ASL A
-     24E1   AA         TAX
-     24E2   98         TYA
-     24E3   18         CLC
-     24E4   69 60      ADC #&60
-     24E6   A8         TAY
-     24E7   BD 7B 24   LDA &247B,X
-     24EA   85 70      STA &70
-     24EC   BD 7C 24   LDA &247C,X
-     24EF   85 71      STA &71
-     24F1   98         TYA
-     24F2   A0 00      LDY #&00
-     24F4   91 70      STA (&70),Y
-     24F6   C9 62      CMP #&62
-     24F8   D0 20      BNE &251A
-     24FA   AD 95 24   LDA &2495
-     24FD   85 70      STA &70
-     24FF   AD 96 24   LDA &2496
-     2502   85 71      STA &71
-     2504   A9 62      LDA #&62
-     2506   A0 00      LDY #&00
-     2508   91 70      STA (&70),Y
-     250A   AD 97 24   LDA &2497
-     250D   85 70      STA &70
-     250F   AD 98 24   LDA &2498
-     2512   85 71      STA &71
-     2514   A9 62      LDA #&62
-     2516   A0 00      LDY #&00
-     2518   91 70      STA (&70),Y
-.side1
-     251A   AC 99 24   LDY &2499
-     251D   60         RTS
+     24AA   8C A8 24   STY &24A8
+     24AD   A9 00      LDA #&00
+     24AF   E0 00      CPX #&00
+     24B1   F0 02      BEQ &24B5
+     24B3   A9 15      LDA #&15
+.prin1
+     24B5   8D A9 24   STA &24A9
+     24B8   A9 1F      LDA #&1F
+     24BA   20 EE FF   JSR &FFEE
+     24BD   B9 8F 24   LDA &248F,Y
+     24C0   18         CLC
+     24C1   6D A9 24   ADC &24A9
+     24C4   20 EE FF   JSR &FFEE
+     24C7   B9 9B 24   LDA &249B,Y
+     24CA   20 EE FF   JSR &FFEE
+     24CD   98         TYA
+     24CE   18         CLC
+     24CF   69 40      ADC #&40
+     24D1   E0 00      CPX #&00
+     24D3   F0 02      BEQ &24D7
+     24D5   09 20      ORA #&20
+.prin2
+     24D7   20 EE FF   JSR &FFEE
+     24DA   C9 42      CMP #&42
+     24DC   F0 04      BEQ &24E2
+     24DE   C9 62      CMP #&62
+     24E0   D0 31      BNE &2513
+.prin3
+     24E2   A8         TAY
+     24E3   A9 1F      LDA #&1F
+     24E5   20 EE FF   JSR &FFEE
+     24E8   AD 90 24   LDA &2490
+     24EB   18         CLC
+     24EC   6D A9 24   ADC &24A9
+     24EF   20 EE FF   JSR &FFEE
+     24F2   A9 08      LDA #&08
+     24F4   20 EE FF   JSR &FFEE
+     24F7   98         TYA
+     24F8   20 EE FF   JSR &FFEE
+     24FB   A9 1F      LDA #&1F
+     24FD   20 EE FF   JSR &FFEE
+     2500   AD 92 24   LDA &2492
+     2503   18         CLC
+     2504   6D A9 24   ADC &24A9
+     2507   20 EE FF   JSR &FFEE
+     250A   A9 08      LDA #&08
+     250C   20 EE FF   JSR &FFEE
+     250F   98         TYA
+     2510   20 EE FF   JSR &FFEE
+.prin4
+     2513   AC A8 24   LDY &24A8
+     2516   60         RTS
 .b_table
-     251E   61
-     251F   51
-     2520   31
-     2521   62
-     2522   52
-     2523   32
-     2524   64
-     2525   54
-     2526   34
-     2527   68
-     2528   58
-     2529   38
+     2517   61
+     2518   51
+     2519   31
+     251A   62
+     251B   52
+     251C   32
+     251D   64
+     251E   54
+     251F   34
+     2520   68
+     2521   58
+     2522   38
 .b_13
-     252A   A9 00      LDA #&00
+     2523   A9 00      LDA #&00
 .b_14
-     252C   AA         TAX
-     252D   59 1D 25   EOR &251D,Y
-     2530   F0 0D      BEQ &253F
-     2532   8D 60 FE   STA &FE60
-     2535   29 0F      AND #&0F
-     2537   2D 60 FE   AND &FE60
-     253A   F0 04      BEQ &2540
-     253C   8A         TXA
-     253D   30 EB      BMI &252A
+     2525   AA         TAX
+     2526   59 16 25   EOR &2516,Y
+     2529   F0 0D      BEQ &2538
+     252B   8D 60 FE   STA &FE60
+     252E   29 0F      AND #&0F
+     2530   2D 60 FE   AND &FE60
+     2533   F0 04      BEQ &2539
+     2535   8A         TXA
+     2536   30 EB      BMI &2523
 .b_quit
-     253F   60         RTS
+     2538   60         RTS
 .b_pressed
-     2540   8A         TXA
-     2541   30 08      BMI &254B
-     2543   98         TYA
-     2544   18         CLC
-     2545   69 40      ADC #&40
-     2547   20 EE FF   JSR &FFEE
-     254A   60         RTS
+     2539   8A         TXA
+     253A   30 08      BMI &2544
+     253C   98         TYA
+     253D   18         CLC
+     253E   69 40      ADC #&40
+     2540   20 EE FF   JSR &FFEE
+     2543   60         RTS
 .b_side
-     254B   98         TYA
-     254C   18         CLC
-     254D   69 60      ADC #&60
-     254F   20 EE FF   JSR &FFEE
-     2552   60         RTS
+     2544   98         TYA
+     2545   18         CLC
+     2546   69 60      ADC #&60
+     2548   20 EE FF   JSR &FFEE
+     254B   60         RTS
 Saving file 'DELTEST'

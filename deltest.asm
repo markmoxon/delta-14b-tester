@@ -75,9 +75,11 @@
 
 .lvdu3
 
- JSR PrintRearLetter    \ Print the letter for the rear stick
+ LDX #0                 \ Print the letter for the rear stick
+ JSR PrintRearLetter
 
- JSR PrintSideLetter    \ Print the letter for the side stick
+ LDX #1                 \ Print the letter for the side stick
+ JSR PrintRearLetter
 
  INY                    \ Increment the button counter
 
@@ -115,13 +117,13 @@
 \       Name: vduCommands
 \       Type: Variable
 \   Category: Screen
-\    Summary: VDU codes for setting up the mode 7 screen
+\    Summary: VDU codes for setting up the mode 6 screen
 \
 \ ******************************************************************************
 
 .vduCommands
 
- EQUB 22, 7             \ Switch to screen mode 7
+ EQUB 22, 6             \ Switch to screen mode 6
 
  EQUB 23, 0, 10, 32     \ Disable cursor
  EQUB 0, 0, 0
@@ -143,99 +145,64 @@
 
  EQUS "Side socket"     \ Print text
 
+ EQUB 31, 0, 14         \ VDU 31, 0, 14
+                        \
+                        \ Move the text cursor to (0, 14)
+
+ EQUS "----------"
+ EQUS "----------"
+ EQUS "----------"
+ EQUS "----------"
+
  EQUB 255               \ End token
 
 \ ******************************************************************************
 \
-\       Name: MODEADDR
-\       Type: Macro
-\   Category: Screen
-\    Summary: Convert a character coordinate into a mode 7 screen address
-\
-\ ******************************************************************************
-
-MACRO MODEADDR x, y
-
- EQUB LO(&7C00 + 40 * y + x)
- EQUB HI(&7C00 + 40 * y + x)
-
-ENDMACRO
-
-\ ******************************************************************************
-\
-\       Name: rearXY
+\       Name: buttonX
 \       Type: Variable
 \   Category: Screen
-\    Summary: Screen addresses for button letters for the rear stick
+\    Summary: Text column numbers for button letters for the rear stick
 \
 \ ******************************************************************************
 
-.rearXY
+.buttonX
 
- MODEADDR  5,  9        \ A
- MODEADDR  9,  9        \ B
- MODEADDR 13,  9        \ C
- MODEADDR  5, 10        \ D
- MODEADDR  9, 10        \ E
- MODEADDR 13, 10        \ F
- MODEADDR  5, 11        \ G
- MODEADDR  9, 11        \ H
- MODEADDR 13, 11        \ I
- MODEADDR  5, 12        \ J
- MODEADDR  9, 12        \ K
- MODEADDR 13, 12        \ L
+ EQUB 5                 \ A
+ EQUB 9                 \ B
+ EQUB 13                \ C
+ EQUB 5                 \ D
+ EQUB 9                 \ E
+ EQUB 13                \ F
+ EQUB 5                 \ G
+ EQUB 9                 \ H
+ EQUB 13                \ I
+ EQUB 5                 \ J
+ EQUB 9                 \ K
+ EQUB 13                \ L
 
 \ ******************************************************************************
 \
-\       Name: rearB
+\       Name: buttonY
 \       Type: Variable
 \   Category: Screen
-\    Summary: Screen addresses for the two extra fire buttons for the rear stick
+\    Summary: Text row numbers for button letters for the rear stick
 \
 \ ******************************************************************************
 
-.rearB
+.buttonY
 
- MODEADDR  5,  8        \ B top-left
- MODEADDR 13,  8        \ B top-right
-
-\ ******************************************************************************
-\
-\       Name: sideXY
-\       Type: Variable
-\   Category: Screen
-\    Summary: Screen addresses for button letters for the side stick
-\
-\ ******************************************************************************
-
-.sideXY
-
- MODEADDR 26,  9        \ a
- MODEADDR 30,  9        \ b
- MODEADDR 34,  9        \ c
- MODEADDR 26, 10        \ d
- MODEADDR 30, 10        \ e
- MODEADDR 34, 10        \ f
- MODEADDR 26, 11        \ g
- MODEADDR 30, 11        \ h
- MODEADDR 34, 11        \ i
- MODEADDR 26, 12        \ j
- MODEADDR 30, 12        \ k
- MODEADDR 34, 12        \ l
-
-\ ******************************************************************************
-\
-\       Name: sideB
-\       Type: Variable
-\   Category: Screen
-\    Summary: Screen addresses for the two extra fire buttons for the side stick
-\
-\ ******************************************************************************
-
-.sideB
-
- MODEADDR 26,  8        \ b top-left
- MODEADDR 34,  8        \ b top-right
+ EQUB 9                 \ A
+ EQUB 9                 \ B
+ EQUB 9                 \ C
+ EQUB 10                \ D
+ EQUB 10                \ E
+ EQUB 10                \ F
+ EQUB 11                \ G
+ EQUB 11                \ H
+ EQUB 11                \ I
+ EQUB 12                \ J
+ EQUB 12                \ K
+ EQUB 12                \ L
 
 \ ******************************************************************************
 \
@@ -252,119 +219,108 @@ ENDMACRO
 
 \ ******************************************************************************
 \
+\       Name: xIndent
+\       Type: Variable
+\   Category: Screen
+\    Summary: The x-coordinate indent to use when printing button letters
+\
+\ ******************************************************************************
+
+.xIndent
+
+ EQUB 0
+
+\ ******************************************************************************
+\
 \       Name: PrintRearLetter
 \       Type: Subroutine
 \   Category: Screen
-\    Summary: Print the rear stick letter defined in A, where A = 1 for the
-\             first button
+\    Summary: Print a specified stick letter
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   X                   0 = rear stick, 1 = side stick
+\
+\   Y                   The button to print (1 for the first button in A/a)
 \
 \ ******************************************************************************
 
 .PrintRearLetter
 
- STY yStore             \ Store Y
+ STY yStore             \ Store the letter number in
 
- TYA                    \ Set X = Y * 2 to use as an index into rearXY
- ASL A
- TAX
+ LDA #0                 \ Set A = 0 to use as the indent for the rear stick
 
- TYA                    \ Set Y = capital "A" to "L"
- CLC
+ CPX #0                 \ If X = 0 then this is the rear stick, so jump to prin1
+ BEQ prin1              \ to skip the following
+
+ LDA #21                \ This is the side stick, so set A = 21 to use as the
+                        \ indent for the side stick
+
+.prin1
+
+ STA xIndent            \ Store the indent in xIndent
+
+ LDA #31                \ Move to the correct text coordinate for this letter,
+ JSR OSWRCH             \ taking the coordinates from the buttonX and buttonY
+ LDA buttonX-1,Y        \ tables and incorporating the indent
+ CLC                    \
+ ADC xIndent            \ We use VDU 31, x, y to move the text cursor
+ JSR OSWRCH
+ LDA buttonY-1,Y
+ JSR OSWRCH
+
+ TYA                    \ Set A to the ASCII code for the letter in Y (capital
+ CLC                    \ "A" to "L")
  ADC #'A' - 1
- TAY
 
- LDA rearXY-2,X         \ Set SC(1 0) to the X-th address from rearXY
- STA SC
- LDA rearXY-1,X
- STA SC+1
+ CPX #0                 \ If X = 0 then this is the rear stick, so jump to prin2
+ BEQ prin2              \ to skip the following
 
- TYA                    \ Poke the letter into screen memory
- LDY #0
- STA (SC),Y
+ ORA #&20               \ Convert the letter in A into lower case for the side
+                        \ stick
 
- CMP #'B'               \ If we are not printing the fire button, jump to rear1
- BNE rear1              \ to return from the subroutine
+.prin2
 
- LDA rearB              \ Set SC(1 0) = rearB
- STA SC
- LDA rearB+1
- STA SC+1
+ JSR OSWRCH             \ Print the button letter
 
- LDA #'B'               \ Print the top-left "B"
- LDY #0
- STA (SC),Y
+ CMP #'B'               \ If we are printing the side stick's fire button, jump
+ BEQ prin3              \ to prin3 to print the two extra buttons
 
- LDA rearB+2            \ Set SC(1 0) = rearB+2
- STA SC
- LDA rearB+3
- STA SC+1
+ CMP #'b'               \ If we are not printing the rear stick's fire button,
+ BNE prin4              \ jump to prin4 to return from the subroutine
 
- LDA #'B'               \ Print the top-right "B"
- LDY #0
- STA (SC),Y
+.prin3
 
-.rear1
+ TAY                    \ Copy the button letter into Y
 
- LDY yStore             \ Retrieve Y
-
- RTS                    \ Return from the subroutine
-
-\ ******************************************************************************
-\
-\       Name: PrintSideLetter
-\       Type: Subroutine
-\   Category: Screen
-\    Summary: Print the side stick letter defined in A, where A = 1 for the
-\             first button
-\
-\ ******************************************************************************
-
-.PrintSideLetter
-
-                        \ Print rear button letter for offset A, where A = 1 for the first button
-
- STY yStore             \ Store Y
-
- TYA                    \ Set X = Y * 2 to use as an index into rearXY
- ASL A
- TAX
-
- TYA                    \ Set Y = capital "A" to "L"
+ LDA #31                \ Move to the position for the top-left fire button on
+ JSR OSWRCH             \ row 8, using the same column as the A button
+ LDA buttonX
  CLC
- ADC #'a' - 1
- TAY
+ ADC xIndent
+ JSR OSWRCH
+ LDA #8
+ JSR OSWRCH
 
- LDA sideXY-2,X         \ Set SC(1 0) to the X-th address from rearXY
- STA SC
- LDA sideXY-1,X
- STA SC+1
+ TYA                    \ Print the top-left fire button letter
+ JSR OSWRCH
 
- TYA                    \ Poke the letter into screen memory
- LDY #0
- STA (SC),Y
+ LDA #31                \ Move to the position for the top-right fire button on
+ JSR OSWRCH             \ row 8, using the same column as the C button
+ LDA buttonX+2
+ CLC
+ ADC xIndent
+ JSR OSWRCH
+ LDA #8
+ JSR OSWRCH
 
- CMP #'b'               \ If we are not printing the fire button, jump to side1
- BNE side1              \ to return from the subroutine
+ TYA                    \ Print the top-right fire button letter
+ JSR OSWRCH
 
- LDA sideB              \ Set SC(1 0) = sideB
- STA SC
- LDA sideB+1
- STA SC+1
-
- LDA #'b'               \ Print the top-left "b"
- LDY #0
- STA (SC),Y
-
- LDA sideB+2            \ Set SC(1 0) = sideB+2
- STA SC
- LDA sideB+3
- STA SC+1
-
- LDA #'b'               \ Print the top-right "b"
- LDY #0
- STA (SC),Y
-
-.side1
+.prin4
 
  LDY yStore             \ Retrieve Y
 
