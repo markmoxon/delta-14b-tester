@@ -54,17 +54,19 @@
 
  JSR DrawScreen         \ Set up the screen display
 
- JSR SetTextWindow      \ Set the text window for the logger
-
 .loop1
 
- LDY #(b_13 - b_table)  \ So set a decreasing counter in Y to work through the
+ LDY #(b_14 - b_table)  \ So set a decreasing counter in Y to work through the
                         \ Delta 14B buttons in b_table
 
 .loop2
 
- LDA #%10000000         \ Set A to 128, as that's what the b_14 routine expects
-                        \ as a parameter
+ LDA #0                 \ Clear bit 7 of A so b_14 scans the rear socket
+
+ JSR b_14               \ Call b_14 to check the Delta 14B joystick buttons and
+                        \ populate the key logger
+
+ LDA #%10000000         \ Set bit 7 of A so b_14 scans the side socket
 
  JSR b_14               \ Call b_14 to check the Delta 14B joystick buttons and
                         \ populate the key logger
@@ -120,9 +122,11 @@
 .lvdu3
 
  LDX #0                 \ Print the letter for the rear stick
+ LDA #0
  JSR PrintButtonLetter
 
  LDX #1                 \ Print the letter for the side stick
+ LDA #0
  JSR PrintButtonLetter
 
  INY                    \ Increment the button counter
@@ -135,9 +139,11 @@
 .lvdu4
 
  LDX #0                 \ Print the arrow for the rear stick
+ LDA #0
  JSR PrintArrow
 
  LDX #1                 \ Print the arrow for the side stick
+ LDA #0
  JSR PrintArrow
 
  DEY                    \ Decrement the arrow counter
@@ -420,6 +426,12 @@
 \
 \ Arguments:
 \
+\   A                   The colour:
+\
+\                         * 0 = normal
+\
+\                         * 1 = inverse
+\\
 \   X                   The stick:
 \
 \                         * 0 = rear stick
@@ -436,11 +448,19 @@
 \
 \                         * 3 = up
 \
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   Y                   Y is preserved
+\
 \ ******************************************************************************
 
 .PrintArrow
 
  STY yStore             \ Store the arrow number in yStore
+
+ JSR SetColour          \ Set the correct colour according to the value in A
 
  JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
@@ -485,6 +505,12 @@
 \
 \                         * 1 = fire
 \
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   Y                   Y is preserved
+\
 \ ******************************************************************************
 
 .PrintFireButton
@@ -522,6 +548,12 @@
 \
 \ Arguments:
 \
+\   A                   The colour:
+\
+\                         * 0 = normal
+\
+\                         * 1 = inverse
+\
 \   X                   The stick:
 \
 \                         * 0 = rear stick
@@ -530,11 +562,19 @@
 \
 \   Y                   The button to print (A = 1 to L = 12)
 \
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   Y                   Y is preserved
+\
 \ ******************************************************************************
 
 .PrintButtonLetter
 
  STY yStore             \ Store the button number in
+
+ JSR SetColour          \ Set the correct colour according to the value in A
 
  JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
@@ -616,6 +656,52 @@
 
 \ ******************************************************************************
 \
+\       Name: SetColour
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Set the specified colour
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   A                   The colour:
+\
+\                         * 0 = normal
+\
+\                         * 1 = inverse
+\
+\ ******************************************************************************
+
+.SetColour
+
+ CMP #0                 \ If A = 0 then this is not a highlight, so jump to
+ BEQ coul1              \ coul1
+
+ LDA #17                \ Set the foreground colour to black (0)
+ JSR OSWRCH
+ LDA #0
+ JSR OSWRCH
+
+ LDA #17                \ Set the background colour to white (129) and return
+ JSR OSWRCH             \ from the subroutine using a tail call
+ LDA #129
+ JMP OSWRCH
+
+.coul1
+
+ LDA #17                \ Set the foreground colour to white (1)
+ JSR OSWRCH
+ LDA #1
+ JSR OSWRCH
+
+ LDA #17                \ Set the background colour to black (128) and return
+ JSR OSWRCH             \ from the subroutine using a tail call
+ LDA #128
+ JMP OSWRCH
+
+\ ******************************************************************************
+\
 \       Name: SetIndent
 \       Type: Subroutine
 \   Category: Screen
@@ -659,6 +745,9 @@
 \ ******************************************************************************
 
 .SetTextWindow
+
+ LDA #0                 \ Reset the colours to normal
+ JSR SetColour
 
  LDA #28                \ Start the VDU 28 command
  JSR OSWRCH
@@ -727,23 +816,32 @@
 \
 \ ------------------------------------------------------------------------------
 \
-\ Scan the Delta 14B for the flight key given in register Y, where Y is the
-\ offset into the KYTB table above (so this is the same approach as in DKS1).
+\ Arguments:
+\
+\   A                   The socket to scan:
+\
+\                         * Bit 7 clear = rear socket
+\
+\                         * Bit 7 set = side socket
+\
+\   Y                   The offset into the b_table table of the button that we
+\                       want to scan on the Delta 14B
 \
 \ ------------------------------------------------------------------------------
 \
-\ Arguments:
+\ Returns:
 \
-\   Y                   The offset into the KYTB table of the key that we want
-\                       to scan on the Delta 14B
+\   C flag              The result:
+\
+\                         * Clear = button not being pressed
+\
+\                         * Set = button is being pressed
+\
+\   A                   A is preserved
+\
+\   Y                   Y is preserved
 \
 \ ******************************************************************************
-
-.b_13
-
- LDA #0                 \ Set A = 0 for the second pass through the following,
-                        \ so we can check the joystick plugged into the rear
-                        \ socket of the Delta 14B adaptor
 
 .b_14
 
@@ -843,39 +941,30 @@
                         \ all, then the result will be non-zero and we move on
                         \ to the next button
 
- TXA                    \ Restore the original value of A that we stored in X
-
- BMI b_13               \ If we just did the above with A = 128, then loop back
-                        \ to b_13 to do it again with A = 0
-
 .b_quit
 
- RTS                    \ Return from the subroutine
+ LDA #0                 \ Print the button letter without a highlight and return
+ JMP PrintButtonLetter  \ from the subroutine using a tail call
 
 .b_pressed
+
+ LDA #1                 \ Print the button letter with a highlight
+ JSR PrintButtonLetter
+
+ PHA                    \ Store the letter we just printed on the stack
+
+ JSR SetTextWindow      \ Set the text window for the logger
 
                         \ Y = button number
                         \
                         \ X = handset (bit 7 set = side)
 
- TXA                    \ If bit 7 of X is set then this is the side stick, so
- BMI b_side             \ jump to b_side
+ PLA                    \ Restore the letter from the stack
 
- TYA                    \ Print capital "A" to "L" for b_table entry 1 on the
- CLC                    \ rear stick
- ADC #'A' - 1
- JSR OSWRCH
+ JSR OSWRCH             \ Print the letter
 
- RTS                    \ Return from the subroutine
-
-.b_side
-
- TYA                    \ Print lower case "a" to "l" for b_table entry on the
- CLC                    \ side stick
- ADC #'a' - 1
- JSR OSWRCH
-
- RTS                    \ Return from the subroutine
+ LDA #26                \ Restore the default text window and return from the subroutine using
+ JMP OSWRCH             \ a tail call
 
 \ ******************************************************************************
 \
