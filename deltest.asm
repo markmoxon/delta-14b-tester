@@ -144,6 +144,14 @@
 
  BPL lvdu4              \ Loop back until we have printed all four
 
+ LDY #0                 \ Set Y = 0 to indicate no fire button is being pressed
+
+ LDX #0                 \ Print the fire button for the rear stick
+ JSR PrintFireButton
+
+ LDX #1                 \ Print the fire button for the side stick
+ JSR PrintFireButton
+
  RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
@@ -165,11 +173,11 @@
 
  EQUB 23, &E0           \ Define left arrow in character &E0
  EQUB %00000000
+ EQUB %00001000
  EQUB %00010000
- EQUB %00100000
- EQUB %01111100
- EQUB %00100000
+ EQUB %00111110
  EQUB %00010000
+ EQUB %00001000
  EQUB %00000000
  EQUB %00000000
 
@@ -200,6 +208,26 @@
  EQUB %00101010
  EQUB %00001000
  EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB 23, &E4           \ Define no fire button in character &E4
+ EQUB %00000000
+ EQUB %00011100
+ EQUB %00100010
+ EQUB %00100010
+ EQUB %00100010
+ EQUB %00011100
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB 23, &E5           \ Define fire button in character &E5
+ EQUB %00000000
+ EQUB %00011100
+ EQUB %00111110
+ EQUB %00111110
+ EQUB %00111110
+ EQUB %00011100
  EQUB %00000000
  EQUB %00000000
 
@@ -321,8 +349,8 @@
 
 .arrowX
 
- EQUB 7                 \ Left
- EQUB 11                \ Right
+ EQUB 8                 \ Left
+ EQUB 10                \ Right
  EQUB 9                 \ Down
  EQUB 9                 \ Up
 
@@ -344,6 +372,45 @@
 
 \ ******************************************************************************
 \
+\       Name: arrowX
+\       Type: Variable
+\   Category: Screen
+\    Summary: Text column number for the fire button for the rear stick
+\
+\ ******************************************************************************
+
+.fireX
+
+ EQUB 9                 \ Fire
+
+\ ******************************************************************************
+\
+\       Name: arrowY
+\       Type: Variable
+\   Category: Screen
+\    Summary: Text row number for arrows for the rear stick
+\
+\ ******************************************************************************
+
+.fireY
+
+ EQUB 6                 \ Fire
+
+\ ******************************************************************************
+\
+\       Name: yStore
+\       Type: Variable
+\   Category: Screen
+\    Summary: Temporary storage for the Y register
+\
+\ ******************************************************************************
+
+.yStore
+
+ EQUB 0
+
+\ ******************************************************************************
+\
 \       Name: PrintArrow
 \       Type: Subroutine
 \   Category: Screen
@@ -356,13 +423,17 @@
 \   X                   The stick:
 \
 \                         * 0 = rear stick
+\
 \                         * 1 = side stick
 \
 \   Y                   The arrow to print:
 \
 \                         * 0 = left
+\
 \                         * 1 = right
+\
 \                         * 2 = down
+\
 \                         * 3 = up
 \
 \ ******************************************************************************
@@ -371,17 +442,7 @@
 
  STY yStore             \ Store the arrow number in yStore
 
- LDA #0                 \ Set A = 0 to use as the indent for the rear stick
-
- CPX #0                 \ If X = 0 then this is the rear stick, so jump to arrw1
- BEQ arrw1              \ to skip the following
-
- LDA #21                \ This is the side stick, so set A = 21 to use as the
-                        \ indent for the side stick
-
-.arrw1
-
- STA xIndent            \ Store the indent in xIndent
+ JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
  LDA #31                \ Move to the correct text coordinate for this arrow,
  JSR OSWRCH             \ taking the coordinates from the arrowX and arrowY
@@ -403,29 +464,52 @@
 
 \ ******************************************************************************
 \
-\       Name: yStore
-\       Type: Variable
+\       Name: PrintFireButton
+\       Type: Subroutine
 \   Category: Screen
-\    Summary: Temporary storage for the Y register
+\    Summary: Print a fire button for the specified stick
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   X                   The stick:
+\
+\                         * 0 = rear stick
+\
+\                         * 1 = side stick
+\
+\   Y                   The fire button state to print:
+\
+\                         * 0 = no fire
+\
+\                         * 1 = fire
 \
 \ ******************************************************************************
 
-.yStore
+.PrintFireButton
 
- EQUB 0
+ STY yStore             \ Store the state in yStore
 
-\ ******************************************************************************
-\
-\       Name: xIndent
-\       Type: Variable
-\   Category: Screen
-\    Summary: The x-coordinate indent to use when printing button letters
-\
-\ ******************************************************************************
+ JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
-.xIndent
+ LDA #31                \ Move to the correct text coordinate for this arrow,
+ JSR OSWRCH             \ taking the coordinates from the fireX and fireY
+ LDA fireX              \ variables and incorporating the indent
+ CLC                    \
+ ADC xIndent            \ We use VDU 31, x, y to move the text cursor
+ JSR OSWRCH
+ LDA fireY
+ JSR OSWRCH
 
- EQUB 0
+ LDA yStore             \ Print the button using characters &E4 or &E5
+ CLC
+ ADC #&E4
+ JSR OSWRCH
+
+ LDY yStore             \ Retrieve Y
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -441,6 +525,7 @@
 \   X                   The stick:
 \
 \                         * 0 = rear stick
+\
 \                         * 1 = side stick
 \
 \   Y                   The button to print (A = 1 to L = 12)
@@ -451,17 +536,7 @@
 
  STY yStore             \ Store the button number in
 
- LDA #0                 \ Set A = 0 to use as the indent for the rear stick
-
- CPX #0                 \ If X = 0 then this is the rear stick, so jump to prin1
- BEQ prin1              \ to skip the following
-
- LDA #21                \ This is the side stick, so set A = 21 to use as the
-                        \ indent for the side stick
-
-.prin1
-
- STA xIndent            \ Store the indent in xIndent
+ JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
  LDA #31                \ Move to the correct text coordinate for this letter,
  JSR OSWRCH             \ taking the coordinates from the buttonX and buttonY
@@ -523,6 +598,54 @@
 .prin4
 
  LDY yStore             \ Retrieve Y
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: xIndent
+\       Type: Variable
+\   Category: Screen
+\    Summary: The x-coordinate indent to use when printing button letters
+\
+\ ******************************************************************************
+
+.xIndent
+
+ EQUB 0
+
+\ ******************************************************************************
+\
+\       Name: SetIndent
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Set the xIndent for the specified stick
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   X                   The stick:
+\
+\                         * 0 = rear stick
+\
+\                         * 1 = side stick
+\
+\ ******************************************************************************
+
+.SetIndent
+
+ LDA #0                 \ Set A = 0 to use as the indent for the rear stick
+
+ CPX #0                 \ If X = 0 then this is the rear stick, so jump to arrw1
+ BEQ arrw1              \ to skip the following
+
+ LDA #21                \ This is the side stick, so set A = 21 to use as the
+                        \ indent for the side stick
+
+.arrw1
+
+ STA xIndent            \ Store the indent in xIndent
 
  RTS                    \ Return from the subroutine
 

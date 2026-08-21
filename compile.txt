@@ -4,12 +4,12 @@
      2400   A9 F0      LDA #&F0
      2402   8D 62 FE   STA &FE62
      2405   20 26 24   JSR &2426
-     2408   20 CA 25   JSR &25CA
+     2408   20 10 26   JSR &2610
 .loop1
      240B   A0 0C      LDY #&0C
 .loop2
      240D   A9 80      LDA #&80
-     240F   20 F1 25   JSR &25F1
+     240F   20 37 26   JSR &2637
      2412   88         DEY
      2413   D0 F8      BNE &240D
      2415   A9 81      LDA #&81
@@ -23,7 +23,7 @@
 .DrawScreen
      2426   A2 00      LDX #&00
 .lvdu1
-     2428   BD 56 24   LDA &2456,X
+     2428   BD 62 24   LDA &2462,X
      242B   C9 FF      CMP #&FF
      242D   F0 06      BEQ &2435
      242F   20 EE FF   JSR &FFEE
@@ -33,296 +33,340 @@
      2435   A0 01      LDY #&01
 .lvdu3
      2437   A2 00      LDX #&00
-     2439   20 5D 25   JSR &255D
+     2439   20 9E 25   JSR &259E
      243C   A2 01      LDX #&01
-     243E   20 5D 25   JSR &255D
+     243E   20 9E 25   JSR &259E
      2441   C8         INY
      2442   C0 0D      CPY #&0D
      2444   90 F1      BCC &2437
      2446   A0 03      LDY #&03
 .lvdu4
      2448   A2 00      LDX #&00
-     244A   20 2B 25   JSR &252B
+     244A   20 4E 25   JSR &254E
      244D   A2 01      LDX #&01
-     244F   20 2B 25   JSR &252B
+     244F   20 4E 25   JSR &254E
      2452   88         DEY
      2453   10 F3      BPL &2448
-     2455   60         RTS
+     2455   A0 00      LDY #&00
+     2457   A2 00      LDX #&00
+     2459   20 76 25   JSR &2576
+     245C   A2 01      LDX #&01
+     245E   20 76 25   JSR &2576
+     2461   60         RTS
 .vduCommands
-     2456   16
-     2457   06
-     2458   17
-     2459   00
-     245A   0A
-     245B   20
-     245C   00
-     245D   00
-     245E   00
-     245F   00
-     2460   00
-     2461   00
-     2462   17
-     2463   E0
-     2464   00
-     2465   10
-     2466   20
-     2467   7C
-     2468   20
-     2469   10
+     2462   16
+     2463   06
+     2464   17
+     2465   00
+     2466   0A
+     2467   20
+     2468   00
+     2469   00
      246A   00
      246B   00
-     246C   17
-     246D   E1
-     246E   00
-     246F   08
-     2470   04
-     2471   3E
-     2472   04
-     2473   08
-     2474   00
-     2475   00
-     2476   17
-     2477   E2
-     2478   00
-     2479   08
-     247A   08
-     247B   2A
-     247C   1C
-     247D   08
-     247E   00
-     247F   00
-     2480   17
-     2481   E3
-     2482   00
-     2483   08
-     2484   1C
-     2485   2A
+     246C   00
+     246D   00
+     246E   17
+     246F   E0
+     2470   00
+     2471   08
+     2472   10
+     2473   3E
+     2474   10
+     2475   08
+     2476   00
+     2477   00
+     2478   17
+     2479   E1
+     247A   00
+     247B   08
+     247C   04
+     247D   3E
+     247E   04
+     247F   08
+     2480   00
+     2481   00
+     2482   17
+     2483   E2
+     2484   00
+     2485   08
      2486   08
-     2487   08
-     2488   00
-     2489   00
-     248A   04
-     248B   1F
-     248C   04
-     248D   00
-     248E   52 65 61 ...
-     2499   1F
-     249A   19
-     249B   00
-     249C   53 69 64 ...
-     24A7   1F
+     2487   2A
+     2488   1C
+     2489   08
+     248A   00
+     248B   00
+     248C   17
+     248D   E3
+     248E   00
+     248F   08
+     2490   1C
+     2491   2A
+     2492   08
+     2493   08
+     2494   00
+     2495   00
+     2496   17
+     2497   E4
+     2498   00
+     2499   1C
+     249A   22
+     249B   22
+     249C   22
+     249D   1C
+     249E   00
+     249F   00
+     24A0   17
+     24A1   E5
+     24A2   00
+     24A3   1C
+     24A4   3E
+     24A5   3E
+     24A6   3E
+     24A7   1C
      24A8   00
-     24A9   0E
-     24AA   2D 2D 2D ...
-     24B4   2D 2D 2D ...
-     24BE   2D 2D 2D ...
-     24C8   2D 2D 2D ...
-     24D2   1F
-     24D3   05
-     24D4   02
-     24D5   E0
-     24D6   20 
-     24D7   E1
-     24D8   1F
-     24D9   05
-     24DA   03
-     24DB   E3
-     24DC   20 
-     24DD   E2
-     24DE   1F
-     24DF   1A
-     24E0   02
-     24E1   E0
-     24E2   20 
-     24E3   E1
-     24E4   1F
-     24E5   1A
-     24E6   03
-     24E7   E3
-     24E8   20 
-     24E9   E2
-     24EA   1F
-     24EB   09
-     24EC   02
-     24ED   26 78 78 ...
+     24A9   00
+     24AA   04
+     24AB   1F
+     24AC   04
+     24AD   00
+     24AE   52 65 61 ...
+     24B9   1F
+     24BA   19
+     24BB   00
+     24BC   53 69 64 ...
+     24C7   1F
+     24C8   00
+     24C9   0E
+     24CA   2D 2D 2D ...
+     24D4   2D 2D 2D ...
+     24DE   2D 2D 2D ...
+     24E8   2D 2D 2D ...
      24F2   1F
-     24F3   09
-     24F4   03
-     24F5   26 78 78 ...
-     24FA   1F
-     24FB   1E
-     24FC   02
-     24FD   26 78 78 ...
-     2502   1F
-     2503   1E
-     2504   03
-     2505   26 78 78 ...
-     250A   FF
+     24F3   05
+     24F4   02
+     24F5   E0
+     24F6   20 
+     24F7   E1
+     24F8   1F
+     24F9   05
+     24FA   03
+     24FB   E3
+     24FC   20 
+     24FD   E2
+     24FE   1F
+     24FF   1A
+     2500   02
+     2501   E0
+     2502   20 
+     2503   E1
+     2504   1F
+     2505   1A
+     2506   03
+     2507   E3
+     2508   20 
+     2509   E2
+     250A   1F
+     250B   09
+     250C   02
+     250D   26 78 78 ...
+     2512   1F
+     2513   09
+     2514   03
+     2515   26 78 78 ...
+     251A   1F
+     251B   1E
+     251C   02
+     251D   26 78 78 ...
+     2522   1F
+     2523   1E
+     2524   03
+     2525   26 78 78 ...
+     252A   FF
 .buttonX
-     250B   05
-     250C   09
-     250D   0D
-     250E   05
-     250F   09
-     2510   0D
-     2511   05
-     2512   09
-     2513   0D
-     2514   05
-     2515   09
-     2516   0D
+     252B   05
+     252C   09
+     252D   0D
+     252E   05
+     252F   09
+     2530   0D
+     2531   05
+     2532   09
+     2533   0D
+     2534   05
+     2535   09
+     2536   0D
 .buttonY
-     2517   09
-     2518   09
-     2519   09
-     251A   0A
-     251B   0A
-     251C   0A
-     251D   0B
-     251E   0B
-     251F   0B
-     2520   0C
-     2521   0C
-     2522   0C
+     2537   09
+     2538   09
+     2539   09
+     253A   0A
+     253B   0A
+     253C   0A
+     253D   0B
+     253E   0B
+     253F   0B
+     2540   0C
+     2541   0C
+     2542   0C
 .arrowX
-     2523   07
-     2524   0B
-     2525   09
-     2526   09
+     2543   08
+     2544   0A
+     2545   09
+     2546   09
 .arrowY
-     2527   06
-     2528   06
-     2529   07
-     252A   05
-.PrintArrow
-     252B   8C 5B 25   STY &255B
-     252E   A9 00      LDA #&00
-     2530   E0 00      CPX #&00
-     2532   F0 02      BEQ &2536
-     2534   A9 15      LDA #&15
-.arrw1
-     2536   8D 5C 25   STA &255C
-     2539   A9 1F      LDA #&1F
-     253B   20 EE FF   JSR &FFEE
-     253E   B9 23 25   LDA &2523,Y
-     2541   18         CLC
-     2542   6D 5C 25   ADC &255C
-     2545   20 EE FF   JSR &FFEE
-     2548   B9 27 25   LDA &2527,Y
-     254B   20 EE FF   JSR &FFEE
-     254E   AD 5B 25   LDA &255B
-     2551   18         CLC
-     2552   69 E0      ADC #&E0
-     2554   20 EE FF   JSR &FFEE
-     2557   AC 5B 25   LDY &255B
-     255A   60         RTS
+     2547   06
+     2548   06
+     2549   07
+     254A   05
+.fireX
+     254B   09
+.fireY
+     254C   06
 .yStore
-     255B   00
-.xIndent
-     255C   00
+     254D   00
+.PrintArrow
+     254E   8C 4D 25   STY &254D
+     2551   20 04 26   JSR &2604
+     2554   A9 1F      LDA #&1F
+     2556   20 EE FF   JSR &FFEE
+     2559   B9 43 25   LDA &2543,Y
+     255C   18         CLC
+     255D   6D 03 26   ADC &2603
+     2560   20 EE FF   JSR &FFEE
+     2563   B9 47 25   LDA &2547,Y
+     2566   20 EE FF   JSR &FFEE
+     2569   AD 4D 25   LDA &254D
+     256C   18         CLC
+     256D   69 E0      ADC #&E0
+     256F   20 EE FF   JSR &FFEE
+     2572   AC 4D 25   LDY &254D
+     2575   60         RTS
+.PrintFireButton
+     2576   8C 4D 25   STY &254D
+     2579   20 04 26   JSR &2604
+     257C   A9 1F      LDA #&1F
+     257E   20 EE FF   JSR &FFEE
+     2581   AD 4B 25   LDA &254B
+     2584   18         CLC
+     2585   6D 03 26   ADC &2603
+     2588   20 EE FF   JSR &FFEE
+     258B   AD 4C 25   LDA &254C
+     258E   20 EE FF   JSR &FFEE
+     2591   AD 4D 25   LDA &254D
+     2594   18         CLC
+     2595   69 E4      ADC #&E4
+     2597   20 EE FF   JSR &FFEE
+     259A   AC 4D 25   LDY &254D
+     259D   60         RTS
 .PrintButtonLetter
-     255D   8C 5B 25   STY &255B
-     2560   A9 00      LDA #&00
-     2562   E0 00      CPX #&00
-     2564   F0 02      BEQ &2568
-     2566   A9 15      LDA #&15
-.prin1
-     2568   8D 5C 25   STA &255C
-     256B   A9 1F      LDA #&1F
-     256D   20 EE FF   JSR &FFEE
-     2570   B9 0A 25   LDA &250A,Y
-     2573   18         CLC
-     2574   6D 5C 25   ADC &255C
-     2577   20 EE FF   JSR &FFEE
-     257A   B9 16 25   LDA &2516,Y
-     257D   20 EE FF   JSR &FFEE
-     2580   98         TYA
-     2581   18         CLC
-     2582   69 40      ADC #&40
-     2584   E0 00      CPX #&00
-     2586   F0 02      BEQ &258A
-     2588   09 20      ORA #&20
-.prin2
-     258A   20 EE FF   JSR &FFEE
-     258D   C9 42      CMP #&42
-     258F   F0 04      BEQ &2595
-     2591   C9 62      CMP #&62
-     2593   D0 31      BNE &25C6
-.prin3
-     2595   A8         TAY
-     2596   A9 1F      LDA #&1F
-     2598   20 EE FF   JSR &FFEE
-     259B   AD 0B 25   LDA &250B
-     259E   18         CLC
-     259F   6D 5C 25   ADC &255C
-     25A2   20 EE FF   JSR &FFEE
-     25A5   A9 08      LDA #&08
-     25A7   20 EE FF   JSR &FFEE
-     25AA   98         TYA
-     25AB   20 EE FF   JSR &FFEE
-     25AE   A9 1F      LDA #&1F
+     259E   8C 4D 25   STY &254D
+     25A1   20 04 26   JSR &2604
+     25A4   A9 1F      LDA #&1F
+     25A6   20 EE FF   JSR &FFEE
+     25A9   B9 2A 25   LDA &252A,Y
+     25AC   18         CLC
+     25AD   6D 03 26   ADC &2603
      25B0   20 EE FF   JSR &FFEE
-     25B3   AD 0D 25   LDA &250D
-     25B6   18         CLC
-     25B7   6D 5C 25   ADC &255C
-     25BA   20 EE FF   JSR &FFEE
-     25BD   A9 08      LDA #&08
-     25BF   20 EE FF   JSR &FFEE
-     25C2   98         TYA
+     25B3   B9 36 25   LDA &2536,Y
+     25B6   20 EE FF   JSR &FFEE
+     25B9   98         TYA
+     25BA   18         CLC
+     25BB   69 40      ADC #&40
+     25BD   E0 00      CPX #&00
+     25BF   F0 02      BEQ &25C3
+     25C1   09 20      ORA #&20
+.prin2
      25C3   20 EE FF   JSR &FFEE
-.prin4
-     25C6   AC 5B 25   LDY &255B
-     25C9   60         RTS
-.SetTextWindow
-     25CA   A9 1C      LDA #&1C
-     25CC   20 EE FF   JSR &FFEE
-     25CF   A9 00      LDA #&00
+     25C6   C9 42      CMP #&42
+     25C8   F0 04      BEQ &25CE
+     25CA   C9 62      CMP #&62
+     25CC   D0 31      BNE &25FF
+.prin3
+     25CE   A8         TAY
+     25CF   A9 1F      LDA #&1F
      25D1   20 EE FF   JSR &FFEE
-     25D4   A9 18      LDA #&18
-     25D6   20 EE FF   JSR &FFEE
-     25D9   A9 27      LDA #&27
+     25D4   AD 2B 25   LDA &252B
+     25D7   18         CLC
+     25D8   6D 03 26   ADC &2603
      25DB   20 EE FF   JSR &FFEE
-     25DE   A9 10      LDA #&10
-     25E0   4C EE FF   JMP &FFEE
-.b_table
-     25E3   61
-     25E4   51
-     25E5   31
-     25E6   62
-     25E7   52
-     25E8   32
-     25E9   64
-     25EA   54
-     25EB   34
-     25EC   68
-     25ED   58
-     25EE   38
-.b_13
-     25EF   A9 00      LDA #&00
-.b_14
-     25F1   AA         TAX
-     25F2   59 E2 25   EOR &25E2,Y
-     25F5   F0 0D      BEQ &2604
-     25F7   8D 60 FE   STA &FE60
-     25FA   29 0F      AND #&0F
-     25FC   2D 60 FE   AND &FE60
-     25FF   F0 04      BEQ &2605
-     2601   8A         TXA
-     2602   30 EB      BMI &25EF
-.b_quit
-     2604   60         RTS
-.b_pressed
-     2605   8A         TXA
-     2606   30 08      BMI &2610
-     2608   98         TYA
-     2609   18         CLC
-     260A   69 40      ADC #&40
-     260C   20 EE FF   JSR &FFEE
+     25DE   A9 08      LDA #&08
+     25E0   20 EE FF   JSR &FFEE
+     25E3   98         TYA
+     25E4   20 EE FF   JSR &FFEE
+     25E7   A9 1F      LDA #&1F
+     25E9   20 EE FF   JSR &FFEE
+     25EC   AD 2D 25   LDA &252D
+     25EF   18         CLC
+     25F0   6D 03 26   ADC &2603
+     25F3   20 EE FF   JSR &FFEE
+     25F6   A9 08      LDA #&08
+     25F8   20 EE FF   JSR &FFEE
+     25FB   98         TYA
+     25FC   20 EE FF   JSR &FFEE
+.prin4
+     25FF   AC 4D 25   LDY &254D
+     2602   60         RTS
+.xIndent
+     2603   00
+.SetIndent
+     2604   A9 00      LDA #&00
+     2606   E0 00      CPX #&00
+     2608   F0 02      BEQ &260C
+     260A   A9 15      LDA #&15
+.arrw1
+     260C   8D 03 26   STA &2603
      260F   60         RTS
+.SetTextWindow
+     2610   A9 1C      LDA #&1C
+     2612   20 EE FF   JSR &FFEE
+     2615   A9 00      LDA #&00
+     2617   20 EE FF   JSR &FFEE
+     261A   A9 18      LDA #&18
+     261C   20 EE FF   JSR &FFEE
+     261F   A9 27      LDA #&27
+     2621   20 EE FF   JSR &FFEE
+     2624   A9 10      LDA #&10
+     2626   4C EE FF   JMP &FFEE
+.b_table
+     2629   61
+     262A   51
+     262B   31
+     262C   62
+     262D   52
+     262E   32
+     262F   64
+     2630   54
+     2631   34
+     2632   68
+     2633   58
+     2634   38
+.b_13
+     2635   A9 00      LDA #&00
+.b_14
+     2637   AA         TAX
+     2638   59 28 26   EOR &2628,Y
+     263B   F0 0D      BEQ &264A
+     263D   8D 60 FE   STA &FE60
+     2640   29 0F      AND #&0F
+     2642   2D 60 FE   AND &FE60
+     2645   F0 04      BEQ &264B
+     2647   8A         TXA
+     2648   30 EB      BMI &2635
+.b_quit
+     264A   60         RTS
+.b_pressed
+     264B   8A         TXA
+     264C   30 08      BMI &2656
+     264E   98         TYA
+     264F   18         CLC
+     2650   69 40      ADC #&40
+     2652   20 EE FF   JSR &FFEE
+     2655   60         RTS
 .b_side
-     2610   98         TYA
-     2611   18         CLC
-     2612   69 60      ADC #&60
-     2614   20 EE FF   JSR &FFEE
-     2617   60         RTS
+     2656   98         TYA
+     2657   18         CLC
+     2658   69 60      ADC #&60
+     265A   20 EE FF   JSR &FFEE
+     265D   60         RTS
 Saving file 'DELTEST'
