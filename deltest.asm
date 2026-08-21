@@ -52,39 +52,9 @@
                         \ interested in) and PB0 to PB3 as input (so we can read
                         \ from the button rows)
 
- LDX #0                 \ Set a counter to work through the VDU commands in the
-                        \ vduCommands table
+ JSR DrawScreen         \ Set up the screen display
 
-.lvdu1
-
- LDA vduCommands,X      \ Set A to the X-th command from the vduCommands table
-
- CMP #255               \ If A = 255 then we have reached the end of the table,
- BEQ lvdu2              \ so jump to lvdu2 to exit the loop
-
- JSR OSWRCH             \ Print the VDU command in A
-
- INX                    \ Increment the loop counter in X
-
- BNE lvdu1              \ Loop back until we have printed all the VDU commands
-
-.lvdu2
-
- LDY #1                 \ Set a counter to work through the buttons on the Delta
-                        \ 14B, starting from A = 1
-
-.lvdu3
-
- LDX #0                 \ Print the letter for the rear stick
- JSR PrintRearLetter
-
- LDX #1                 \ Print the letter for the side stick
- JSR PrintRearLetter
-
- INY                    \ Increment the button counter
-
- CPY #13                \ Loop back until we have printed buttons 1 to 12
- BCC lvdu3
+ JSR SetTextWindow      \ Set the text window for the logger
 
 .loop1
 
@@ -110,7 +80,71 @@
 
  BCS loop1              \ If no key is being pressed, keep looping
 
+ LDA #26                \ Restore the default text window
+ JSR OSWRCH
+
  RTS                    \ Quit program
+
+\ ******************************************************************************
+\
+\       Name: DrawScreen
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Set up the screen display
+\
+\ ******************************************************************************
+
+.DrawScreen
+
+ LDX #0                 \ Set a counter to work through the VDU commands in the
+                        \ vduCommands table
+
+.lvdu1
+
+ LDA vduCommands,X      \ Set A to the X-th command from the vduCommands table
+
+ CMP #255               \ If A = 255 then we have reached the end of the table,
+ BEQ lvdu2              \ so jump to lvdu2 to exit the loop
+
+ JSR OSWRCH             \ Print the VDU command in A
+
+ INX                    \ Increment the loop counter in X
+
+ BNE lvdu1              \ Loop back until we have printed all the VDU commands
+
+.lvdu2
+
+ LDY #1                 \ Set a counter to work through the buttons on the Delta
+                        \ 14B, starting from A = 1
+
+.lvdu3
+
+ LDX #0                 \ Print the letter for the rear stick
+ JSR PrintButtonLetter
+
+ LDX #1                 \ Print the letter for the side stick
+ JSR PrintButtonLetter
+
+ INY                    \ Increment the button counter
+
+ CPY #13                \ Loop back until we have printed buttons 1 to 12
+ BCC lvdu3
+
+ LDY #3                 \ Set a counter to work through the four arrows
+
+.lvdu4
+
+ LDX #0                 \ Print the arrow for the rear stick
+ JSR PrintArrow
+
+ LDX #1                 \ Print the arrow for the side stick
+ JSR PrintArrow
+
+ DEY                    \ Decrement the arrow counter
+
+ BPL lvdu4              \ Loop back until we have printed all four
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -129,30 +163,102 @@
  EQUB 0, 0, 0
  EQUB 0, 0, 0
 
- EQUB 4                 \ VDU 4
-                        \
-                        \ Write text at the text cursor
+ EQUB 23, &E0           \ Define left arrow in character &E0
+ EQUB %00000000
+ EQUB %00010000
+ EQUB %00100000
+ EQUB %01111100
+ EQUB %00100000
+ EQUB %00010000
+ EQUB %00000000
+ EQUB %00000000
 
- EQUB 31, 4, 0          \ VDU 31, 4, 0
-                        \
-                        \ Move the text cursor to (4, 0)
+ EQUB 23, &E1           \ Define right arrow in character &E1
+ EQUB %00000000
+ EQUB %00001000
+ EQUB %00000100
+ EQUB %00111110
+ EQUB %00000100
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB 23, &E2           \ Define down arrow in character &E2
+ EQUB %00000000
+ EQUB %00001000
+ EQUB %00001000
+ EQUB %00101010
+ EQUB %00011100
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB 23, &E3           \ Define up arrow in character &E3
+ EQUB %00000000
+ EQUB %00001000
+ EQUB %00011100
+ EQUB %00101010
+ EQUB %00001000
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB 4                 \ Write text at the text cursor
+
+ EQUB 31, 4, 0          \ Move the text cursor to (4, 0)
 
  EQUS "Rear socket"     \ Print text
 
- EQUB 31, 25, 0         \ VDU 31, 25, 0
-                        \
-                        \ Move the text cursor to (25, 0)
+ EQUB 31, 25, 0         \ Move the text cursor to (25, 0)
 
  EQUS "Side socket"     \ Print text
 
- EQUB 31, 0, 14         \ VDU 31, 0, 14
-                        \
-                        \ Move the text cursor to (0, 14)
+ EQUB 31, 0, 14         \ Move the text cursor to (0, 14)
 
  EQUS "----------"
  EQUS "----------"
  EQUS "----------"
  EQUS "----------"
+
+ EQUB 31, 5, 2          \ Move the text cursor to (5, 2)
+
+ EQUB &E0               \ Print left arrow, right arrow
+ EQUS " "
+ EQUB &E1
+
+ EQUB 31, 5, 3          \ Move the text cursor to (5, 3)
+
+ EQUB &E3               \ Print up arrow, down arrow
+ EQUS " "
+ EQUB &E2
+
+ EQUB 31, 26, 2         \ Move the text cursor to (26, 2)
+
+ EQUB &E0               \ Print left arrow, right arrow
+ EQUS " "
+ EQUB &E1
+
+ EQUB 31, 26, 3         \ Move the text cursor to (26, 3)
+
+ EQUB &E3               \ Print up arrow, down arrow
+ EQUS " "
+ EQUB &E2
+
+ EQUB 31, 9, 2          \ Move the text cursor to (9, 2)
+
+ EQUS "&xxxx"           \ Print &xxxx
+
+ EQUB 31, 9, 3         \ Move the text cursor to (9, 3)
+
+ EQUS "&xxxx"           \ Print &xxxx
+
+ EQUB 31, 30, 2         \ Move the text cursor to (30, 2)
+
+ EQUS "&xxxx"           \ Print &xxxx
+
+ EQUB 31, 30, 3         \ Move the text cursor to (30, 3)
+
+ EQUS "&xxxx"           \ Print &xxxx
 
  EQUB 255               \ End token
 
@@ -206,6 +312,97 @@
 
 \ ******************************************************************************
 \
+\       Name: arrowX
+\       Type: Variable
+\   Category: Screen
+\    Summary: Text column numbers for arrows for the rear stick
+\
+\ ******************************************************************************
+
+.arrowX
+
+ EQUB 7                 \ Left
+ EQUB 11                \ Right
+ EQUB 9                 \ Down
+ EQUB 9                 \ Up
+
+\ ******************************************************************************
+\
+\       Name: arrowY
+\       Type: Variable
+\   Category: Screen
+\    Summary: Text row numbers for arrows for the rear stick
+\
+\ ******************************************************************************
+
+.arrowY
+
+ EQUB 6                 \ Left
+ EQUB 6                 \ Right
+ EQUB 7                 \ Down
+ EQUB 5                 \ Up
+
+\ ******************************************************************************
+\
+\       Name: PrintArrow
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Print a direction arrow for the specified stick
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   X                   The stick:
+\
+\                         * 0 = rear stick
+\                         * 1 = side stick
+\
+\   Y                   The arrow to print:
+\
+\                         * 0 = left
+\                         * 1 = right
+\                         * 2 = down
+\                         * 3 = up
+\
+\ ******************************************************************************
+
+.PrintArrow
+
+ STY yStore             \ Store the arrow number in yStore
+
+ LDA #0                 \ Set A = 0 to use as the indent for the rear stick
+
+ CPX #0                 \ If X = 0 then this is the rear stick, so jump to arrw1
+ BEQ arrw1              \ to skip the following
+
+ LDA #21                \ This is the side stick, so set A = 21 to use as the
+                        \ indent for the side stick
+
+.arrw1
+
+ STA xIndent            \ Store the indent in xIndent
+
+ LDA #31                \ Move to the correct text coordinate for this arrow,
+ JSR OSWRCH             \ taking the coordinates from the arrowX and arrowY
+ LDA arrowX,Y           \ tables and incorporating the indent
+ CLC                    \
+ ADC xIndent            \ We use VDU 31, x, y to move the text cursor
+ JSR OSWRCH
+ LDA arrowY,Y
+ JSR OSWRCH
+
+ LDA yStore             \ Print the arrow using characters &E0 to &E3
+ CLC
+ ADC #&E0
+ JSR OSWRCH
+
+ LDY yStore             \ Retrieve Y
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
 \       Name: yStore
 \       Type: Variable
 \   Category: Screen
@@ -232,24 +429,27 @@
 
 \ ******************************************************************************
 \
-\       Name: PrintRearLetter
+\       Name: PrintButtonLetter
 \       Type: Subroutine
 \   Category: Screen
-\    Summary: Print a specified stick letter
+\    Summary: Print the letter for the specified stick button
 \
 \ ------------------------------------------------------------------------------
 \
 \ Arguments:
 \
-\   X                   0 = rear stick, 1 = side stick
+\   X                   The stick:
 \
-\   Y                   The button to print (1 for the first button in A/a)
+\                         * 0 = rear stick
+\                         * 1 = side stick
+\
+\   Y                   The button to print (A = 1 to L = 12)
 \
 \ ******************************************************************************
 
-.PrintRearLetter
+.PrintButtonLetter
 
- STY yStore             \ Store the letter number in
+ STY yStore             \ Store the button number in
 
  LDA #0                 \ Set A = 0 to use as the indent for the rear stick
 
@@ -325,6 +525,32 @@
  LDY yStore             \ Retrieve Y
 
  RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: SetTextWindow
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Set a text window for row 16 and down, for the logger
+\
+\ ******************************************************************************
+
+.SetTextWindow
+
+ LDA #28                \ Start the VDU 28 command
+ JSR OSWRCH
+
+ LDA #0                 \ Set leftX
+ JSR OSWRCH
+
+ LDA #24                \ Set bottomY
+ JSR OSWRCH
+
+ LDA #39                \ Set rightX
+ JSR OSWRCH
+
+ LDA #16                \ Set topY and return from the subroutine using a tail
+ JMP OSWRCH             \ call
 
 \ ******************************************************************************
 \
