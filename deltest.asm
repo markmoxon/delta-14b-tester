@@ -22,7 +22,11 @@
 
 \ ******************************************************************************
 \
-\ DELTEST FILE
+\       Name: ZP
+\       Type: Workspace
+\    Address: &0070 to &008F
+\   Category: Workspaces
+\    Summary: Important variables
 \
 \ ******************************************************************************
 
@@ -32,6 +36,49 @@
 
  SKIP 2                 \ Screen address
 
+.aStore
+
+ SKIP 1                 \ Temporary storage for the A register
+
+.yStore
+
+ SKIP 1                 \ Temporary storage for the Y register
+
+.xIndent
+
+ SKIP 1                 \ The x-coordinate indent to use when printing button
+                        \ letters
+
+.XC
+
+ SKIP 1                 \ The text column for printing a character directly into
+                        \ screen memory
+
+.YC
+
+ SKIP 1                 \ The text row for printing a character directly into
+                        \ screen memory
+
+.COL
+
+ SKIP 1                 \ The colour to be printed directly to the screen:
+                        \
+                        \   * 0 = normal
+                        \
+                        \   * &FF = inverted
+
+.P
+
+ SKIP 3                 \ Temporary variable
+
+\ ******************************************************************************
+\
+\ DELTEST FILE
+\
+\ ******************************************************************************
+
+ ORG CODE%              \ Set the assembly address to CODE%
+
 \ ******************************************************************************
 \
 \       Name: ENTRY
@@ -40,8 +87,6 @@
 \    Summary: The entry point for the tool
 \
 \ ******************************************************************************
-
- ORG CODE%              \ Set the assembly address to CODE%
 
 .ENTRY
 
@@ -53,6 +98,8 @@
                         \ from the button rows)
 
  JSR DrawScreen         \ Set up the screen display
+
+ JSR SetTextWindow      \ Set the text window for the logger
 
 .loop1
 
@@ -82,8 +129,7 @@
 
  BCS loop1              \ If no key is being pressed, keep looping
 
- LDA #26                \ Restore the default text window
- JSR OSWRCH
+ JSR ResetTextWindow    \ Restore the default text window
 
  RTS                    \ Quit program
 
@@ -158,6 +204,44 @@
  LDX #1                 \ Print the fire button for the side stick
  JSR PrintFireButton
 
+ LDA #5                 \ Print a left arrow at (5, 2)
+ STA XC
+ LDA #2
+ STA YC
+ LDY #0
+ JSR PrintShape
+
+ INC YC                 \ Print an up arrow at (5, 3)
+ LDY #3
+ JSR PrintShape
+
+ INC XC                 \ Print a down arrow at (7, 3)
+ INC XC
+ LDY #2
+ JSR PrintShape
+
+ DEC YC                 \ Print a right arrow at (7, 2)
+ LDY #1
+ JSR PrintShape
+
+ LDA #26                \ Print a left arrow at (26, 2)
+ STA XC
+ LDY #0
+ JSR PrintShape
+
+ INC YC                 \ Print an up arrow at (26, 3)
+ LDY #3
+ JSR PrintShape
+
+ INC XC                 \ Print a down arrow at (26, 3)
+ INC XC
+ LDY #2
+ JSR PrintShape
+
+ DEC YC                 \ Print a right arrow at (26, 2)
+ LDY #1
+ JSR PrintShape
+
  RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
@@ -177,66 +261,6 @@
  EQUB 0, 0, 0
  EQUB 0, 0, 0
 
- EQUB 23, &E0           \ Define left arrow in character &E0
- EQUB %00000000
- EQUB %00001000
- EQUB %00010000
- EQUB %00111110
- EQUB %00010000
- EQUB %00001000
- EQUB %00000000
- EQUB %00000000
-
- EQUB 23, &E1           \ Define right arrow in character &E1
- EQUB %00000000
- EQUB %00001000
- EQUB %00000100
- EQUB %00111110
- EQUB %00000100
- EQUB %00001000
- EQUB %00000000
- EQUB %00000000
-
- EQUB 23, &E2           \ Define down arrow in character &E2
- EQUB %00000000
- EQUB %00001000
- EQUB %00001000
- EQUB %00101010
- EQUB %00011100
- EQUB %00001000
- EQUB %00000000
- EQUB %00000000
-
- EQUB 23, &E3           \ Define up arrow in character &E3
- EQUB %00000000
- EQUB %00001000
- EQUB %00011100
- EQUB %00101010
- EQUB %00001000
- EQUB %00001000
- EQUB %00000000
- EQUB %00000000
-
- EQUB 23, &E4           \ Define no fire button in character &E4
- EQUB %00000000
- EQUB %00011100
- EQUB %00100010
- EQUB %00100010
- EQUB %00100010
- EQUB %00011100
- EQUB %00000000
- EQUB %00000000
-
- EQUB 23, &E5           \ Define fire button in character &E5
- EQUB %00000000
- EQUB %00011100
- EQUB %00111110
- EQUB %00111110
- EQUB %00111110
- EQUB %00011100
- EQUB %00000000
- EQUB %00000000
-
  EQUB 4                 \ Write text at the text cursor
 
  EQUB 31, 4, 0          \ Move the text cursor to (4, 0)
@@ -253,30 +277,6 @@
  EQUS "----------"
  EQUS "----------"
  EQUS "----------"
-
- EQUB 31, 5, 2          \ Move the text cursor to (5, 2)
-
- EQUB &E0               \ Print left arrow, right arrow
- EQUS " "
- EQUB &E1
-
- EQUB 31, 5, 3          \ Move the text cursor to (5, 3)
-
- EQUB &E3               \ Print up arrow, down arrow
- EQUS " "
- EQUB &E2
-
- EQUB 31, 26, 2         \ Move the text cursor to (26, 2)
-
- EQUB &E0               \ Print left arrow, right arrow
- EQUS " "
- EQUB &E1
-
- EQUB 31, 26, 3         \ Move the text cursor to (26, 3)
-
- EQUB &E3               \ Print up arrow, down arrow
- EQUS " "
- EQUB &E2
 
  EQUB 31, 9, 2          \ Move the text cursor to (9, 2)
 
@@ -295,6 +295,89 @@
  EQUS "&xxxx"           \ Print &xxxx
 
  EQUB 255               \ End token
+
+\ ******************************************************************************
+\
+\       Name: shapesAddr
+\       Type: Variable
+\   Category: Screen
+\    Summary: Lookup table for the custom chararacter definitions
+\
+\ ******************************************************************************
+
+.shapesAddr
+
+ EQUW shapes
+ EQUW shapes+8
+ EQUW shapes+16
+ EQUW shapes+24
+ EQUW shapes+32
+ EQUW shapes+40
+
+\ ******************************************************************************
+\
+\       Name: shapes
+\       Type: Variable
+\   Category: Screen
+\    Summary: Custom chararacter definitions
+\
+\ ******************************************************************************
+
+.shapes
+
+ EQUB %00000000         \ 0 = left arrow
+ EQUB %00001000
+ EQUB %00010000
+ EQUB %00111110
+ EQUB %00010000
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB %00000000         \ 1 = right arrow
+ EQUB %00001000
+ EQUB %00000100
+ EQUB %00111110
+ EQUB %00000100
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB %00000000         \ 2 = down arrow
+ EQUB %00001000
+ EQUB %00001000
+ EQUB %00101010
+ EQUB %00011100
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB %00000000         \ 3 = up arrow
+ EQUB %00001000
+ EQUB %00011100
+ EQUB %00101010
+ EQUB %00001000
+ EQUB %00001000
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB %00000000         \ 4 = fire button (not pressed)
+ EQUB %00011100
+ EQUB %00100010
+ EQUB %00100010
+ EQUB %00100010
+ EQUB %00011100
+ EQUB %00000000
+ EQUB %00000000
+
+ EQUB %00000000         \ 5 = fire button (pressed)
+ EQUB %00011100
+ EQUB %00111110
+ EQUB %00111110
+ EQUB %00111110
+ EQUB %00011100
+ EQUB %00000000
+ EQUB %00000000
 
 \ ******************************************************************************
 \
@@ -404,19 +487,6 @@
 
 \ ******************************************************************************
 \
-\       Name: yStore
-\       Type: Variable
-\   Category: Screen
-\    Summary: Temporary storage for the Y register
-\
-\ ******************************************************************************
-
-.yStore
-
- EQUB 0
-
-\ ******************************************************************************
-\
 \       Name: PrintArrow
 \       Type: Subroutine
 \   Category: Screen
@@ -431,7 +501,7 @@
 \                         * 0 = normal
 \
 \                         * 1 = inverse
-\\
+\
 \   X                   The stick:
 \
 \                         * 0 = rear stick
@@ -464,19 +534,16 @@
 
  JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
- LDA #31                \ Move to the correct text coordinate for this arrow,
- JSR OSWRCH             \ taking the coordinates from the arrowX and arrowY
- LDA arrowX,Y           \ tables and incorporating the indent
- CLC                    \
- ADC xIndent            \ We use VDU 31, x, y to move the text cursor
- JSR OSWRCH
- LDA arrowY,Y
- JSR OSWRCH
+ LDA arrowX,Y           \ Set YC to the correct column for this arrow from the
+ CLC                    \ arrowX table, adding the correct indent
+ ADC xIndent
+ STA XC
 
- LDA yStore             \ Print the arrow using characters &E0 to &E3
- CLC
- ADC #&E0
- JSR OSWRCH
+ LDA arrowY,Y           \ Set YC to the correct row for this arrow from the
+ STA YC                 \ arrowY table
+
+ LDY yStore             \ Print the arrow as a shape
+ JSR PrintShape
 
  LDY yStore             \ Retrieve Y
 
@@ -519,19 +586,20 @@
 
  JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
- LDA #31                \ Move to the correct text coordinate for this arrow,
- JSR OSWRCH             \ taking the coordinates from the fireX and fireY
- LDA fireX              \ variables and incorporating the indent
- CLC                    \
- ADC xIndent            \ We use VDU 31, x, y to move the text cursor
- JSR OSWRCH
- LDA fireY
- JSR OSWRCH
+ LDA fireX,Y            \ Set YC to the correct column for this button from the
+ CLC                    \ fireX table, adding the correct indent
+ ADC xIndent
+ STA XC
 
- LDA yStore             \ Print the button using characters &E4 or &E5
+ LDA fireY,Y            \ Set YC to the correct row for this button from the
+ STA YC                 \ fireY table
+
+ LDA yStore             \ Set Y = Y + 4 to give us the shape number to print
  CLC
- ADC #&E4
- JSR OSWRCH
+ ADC #4
+ TAY
+
+ JSR PrintShape         \ Print the button as a shape
 
  LDY yStore             \ Retrieve Y
 
@@ -566,6 +634,8 @@
 \
 \ Returns:
 \
+\   A                   The letter that was printed
+\
 \   Y                   Y is preserved
 \
 \ ******************************************************************************
@@ -578,14 +648,13 @@
 
  JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
- LDA #31                \ Move to the correct text coordinate for this letter,
- JSR OSWRCH             \ taking the coordinates from the buttonX and buttonY
- LDA buttonX-1,Y        \ tables and incorporating the indent
- CLC                    \
- ADC xIndent            \ We use VDU 31, x, y to move the text cursor
- JSR OSWRCH
- LDA buttonY-1,Y
- JSR OSWRCH
+ LDA buttonX-1,Y        \ Set YC to the correct column for this button from the
+ CLC                    \ buttonX table, adding the correct indent
+ ADC xIndent
+ STA XC
+
+ LDA buttonY-1,Y        \ Set YC to the correct row for this button from the
+ STA YC                 \ buttonY table
 
  TYA                    \ Set A to the ASCII code for the letter in Y (capital
  CLC                    \ "A" to "L")
@@ -599,7 +668,7 @@
 
 .prin2
 
- JSR OSWRCH             \ Print the button letter
+ JSR PrintCharacter     \ Print the button letter
 
  CMP #'B'               \ If we are printing the side stick's fire button, jump
  BEQ prin3              \ to prin3 to print the two extra buttons
@@ -609,50 +678,33 @@
 
 .prin3
 
- TAY                    \ Copy the button letter into Y
-
- LDA #31                \ Move to the position for the top-left fire button on
- JSR OSWRCH             \ row 8, using the same column as the A button
- LDA buttonX
- CLC
+ LDA buttonX            \ Set XC to the column for the top-left fire button on
+ CLC                    \ row 8, using the same column as the A button
  ADC xIndent
- JSR OSWRCH
- LDA #8
- JSR OSWRCH
+ STA XC
 
- TYA                    \ Print the top-left fire button letter
- JSR OSWRCH
+ LDA #8                 \ Set YC to row 8
+ STA YC
 
- LDA #31                \ Move to the position for the top-right fire button on
- JSR OSWRCH             \ row 8, using the same column as the C button
- LDA buttonX+2
- CLC
+ LDA aStore             \ Print the top-left fire button letter
+ JSR PrintCharacter
+
+ LDA buttonX+2          \ Set XC to the column for the top-right fire button on
+ CLC                    \ row 8, using the same column as the C button
  ADC xIndent
- JSR OSWRCH
- LDA #8
- JSR OSWRCH
+ STA XC
 
- TYA                    \ Print the top-right fire button letter
- JSR OSWRCH
+ LDA #8                 \ Set YC to row 8
+ STA YC
+
+ LDA aStore             \ Print the top-right fire button letter
+ JSR PrintCharacter
 
 .prin4
 
  LDY yStore             \ Retrieve Y
 
  RTS                    \ Return from the subroutine
-
-\ ******************************************************************************
-\
-\       Name: xIndent
-\       Type: Variable
-\   Category: Screen
-\    Summary: The x-coordinate indent to use when printing button letters
-\
-\ ******************************************************************************
-
-.xIndent
-
- EQUB 0
 
 \ ******************************************************************************
 \
@@ -675,30 +727,17 @@
 
 .SetColour
 
- CMP #0                 \ If A = 0 then this is not a highlight, so jump to
- BEQ coul1              \ coul1
+ CMP #0                 \ If the colour is normal, jump to scol1 to set COL = 0
+ BEQ scol1
 
- LDA #17                \ Set the foreground colour to black (0)
- JSR OSWRCH
- LDA #0
- JSR OSWRCH
+ LDA #&FF               \ If the colour is inverse, set A = &FF to set as the
+                        \ value of COL
 
- LDA #17                \ Set the background colour to white (129) and return
- JSR OSWRCH             \ from the subroutine using a tail call
- LDA #129
- JMP OSWRCH
+.scol1
 
-.coul1
+ STA COL                \ Set the current colour in COL
 
- LDA #17                \ Set the foreground colour to white (1)
- JSR OSWRCH
- LDA #1
- JSR OSWRCH
-
- LDA #17                \ Set the background colour to black (128) and return
- JSR OSWRCH             \ from the subroutine using a tail call
- LDA #128
- JMP OSWRCH
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -746,8 +785,15 @@
 
 .SetTextWindow
 
- LDA #0                 \ Reset the colours to normal
- JSR SetColour
+ LDA #17                \ Set the foreground colour to white (1)
+ JSR OSWRCH
+ LDA #1
+ JSR OSWRCH
+
+ LDA #17                \ Set the background colour to black (128)
+ JSR OSWRCH
+ LDA #128
+ JSR OSWRCH
 
  LDA #28                \ Start the VDU 28 command
  JSR OSWRCH
@@ -763,6 +809,229 @@
 
  LDA #16                \ Set topY and return from the subroutine using a tail
  JMP OSWRCH             \ call
+
+\ ******************************************************************************
+\
+\       Name: ResetTextWindow
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Reset the text window
+\
+\ ******************************************************************************
+
+.ResetTextWindow
+
+ LDA #26                \ Restore the default text window and return from the
+ JMP OSWRCH             \ subroutine using a tail call
+
+\ ******************************************************************************
+\
+\       Name: PrintShape
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Print a bitmap shape directly into screen memory at (XC, YC)
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   Y                   The shape to print:
+\
+\                         * 0 = left arrow
+\
+\                         * 1 = right arrow
+\
+\                         * 2 = down arrow
+\
+\                         * 3 = up arrow
+\
+\                         * 4 = fire button (not pressed)
+\
+\                         * 5 = fire button (pressed)
+\
+\   XC                  Contains the text column to print at (the x-coordinate)
+\
+\   YC                  Contains the line number to print on (the y-coordinate)
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   A                   A is preserved
+\
+\ ******************************************************************************
+
+.PrintShape
+
+ STA aStore             \ Store A in aStore
+
+ TYA                    \ Set Y = Y * 2
+ ASL A
+ TAY
+
+ LDA shapesAddr,Y       \ Set P(2 1) to the Y-th address from the shapesAddr
+ STA P+1                \ table, which is the character definition we need
+ LDA shapesAddr+1,Y       
+ STA P+2
+
+ JMP char1              \ Jump into PrintCharacter to draw the shape onto the
+                        \ screen
+
+\ ******************************************************************************
+\
+\       Name: PrintCharacter
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Print a character directly into screen memory at (XC, YC)
+\
+\ ------------------------------------------------------------------------------
+\
+\ Arguments:
+\
+\   A                   The character to be printed
+\
+\   XC                  Contains the text column to print at (the x-coordinate)
+\
+\   YC                  Contains the line number to print on (the y-coordinate)
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   A                   A is preserved
+\
+\ ******************************************************************************
+
+.PrintCharacter
+
+ STA aStore             \ Store the character number in aStore
+
+                        \ Now we want to set X to point to the relevant page
+                        \ number for this character - i.e. &C0, &C1 or &C2.
+
+                        \ The following logic is easier to follow if we look
+                        \ at the three character number ranges in binary:
+                        \
+                        \   Bit #  76543210
+                        \
+                        \   32  = %00100000     Page 0 of bitmap definitions
+                        \   63  = %00111111
+                        \
+                        \   64  = %01000000     Page 1 of bitmap definitions
+                        \   95  = %01011111
+                        \
+                        \   96  = %01100000     Page 2 of bitmap definitions
+                        \   125 = %01111101
+                        \
+                        \ We'll refer to this below
+
+ LDX #&BF               \ Set X to point to the first font page in ROM minus 1,
+                        \ which is &C0 - 1, or &BF
+
+ ASL A                  \ If bit 6 of the character is clear (A is 32-63)
+ ASL A                  \ then skip the following instruction
+ BCC P%+4
+
+ LDX #&C1               \ A is 64-126, so set X to point to page &C1
+
+ ASL A                  \ If bit 5 of the character is clear (A is 64-95)
+ BCC P%+3               \ then skip the following instruction
+
+ INX                    \ Increment X
+                        \
+                        \ By this point, we started with X = &BF, and then
+                        \ we did the following:
+                        \
+                        \   If A = 32-63:   skip    then INX  so X = &C0
+                        \   If A = 64-95:   X = &C1 then skip so X = &C1
+                        \   If A = 96-126:  X = &C1 then INX  so X = &C2
+                        \
+                        \ In other words, X points to the relevant page. But
+                        \ what about the value of A? That gets shifted to the
+                        \ left three times during the above code, which
+                        \ multiplies the number by 8 but also drops bits 7, 6
+                        \ and 5 in the process. Look at the above binary
+                        \ figures and you can see that if we cleared bits 5-7,
+                        \ then that would change 32-53 to 0-31... but it would
+                        \ do exactly the same to 64-95 and 96-125. And because
+                        \ we also multiply this figure by 8, A now points to
+                        \ the start of the character's definition within its
+                        \ page (because there are 8 bytes per character
+                        \ definition)
+                        \
+                        \ Or, to put it another way, X contains the high byte
+                        \ (the page) of the address of the definition that we
+                        \ want, while A contains the low byte (the offset into
+                        \ the page) of the address
+
+ STA P+1                \ Store the address of this character's definition in
+ STX P+2                \ P(2 1)
+
+.char1
+
+                        \ Now to calculate the screen address we need to write
+                        \ to, as follows:
+                        \
+                        \   SC = &6000 + (char row * 256) + (char row * 64) + 0
+
+ LDA #0                 \ Set SC = 0 for use in the calculation below
+ STA SC
+
+ LDA YC
+ LSR A                  \ Set (A SC) = (A SC) / 4
+ ROR SC                 \            = (4 * ((char row * 64) + 0)) / 4
+ LSR A                  \            = char row * 64 + 0
+ ROR SC
+
+ ADC YC                 \ Set SC(1 0) = (A SC) + (YC 0) + &6000
+ ADC #&60               \             = (char row * 64 + 0)
+ STA SC+1               \               + char row * 256
+                        \               + &6000
+                        \
+                        \ which is what we want, so SC(1 0) contains the address
+                        \ of the first visible pixel on the character row we
+                        \ want
+
+ LDA #0                 \ Set (P A) = XC, the x-coordinate (column) of the text
+ STA P                  \ cursor
+ LDA XC
+
+ ASL A                  \ Multiply (P A) by 8, and add to SC(1 0) to give us the
+ ROL P                  \ screen address of the character block where we want to
+ ASL A                  \ print this character
+ ROL P                  \
+ ASL A                  \ Starting with the low bytes
+ ROL P
+ ADC SC
+ STA SC
+
+ LDA SC+1               \ Add the high bytes
+ ADC P
+ STA SC+1
+
+ LDY #7                 \ We want to print the 8 bytes of character data to the
+                        \ screen (one byte per row), so set up a counter in Y
+                        \ to count these bytes
+
+.RRL1
+
+ LDA (P+1),Y            \ The character definition is at P(2 1) - we set this up
+                        \ above - so load the Y-th byte from P(2 1), which will
+                        \ contain the bitmap for the Y-th row of the character
+
+ EOR COL                \ Apply the colour in COL (so when COL is &FF it inverts
+                        \ the colour)
+
+ STA (SC),Y             \ Store the Y-th byte at the screen address for this
+                        \ character location
+
+ DEY                    \ Decrement the loop counter
+
+ BPL RRL1               \ Loop back for the next byte to print to the screen
+
+ LDA aStore             \ Retrieve the character number into A
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -951,20 +1220,8 @@
  LDA #1                 \ Print the button letter with a highlight
  JSR PrintButtonLetter
 
- PHA                    \ Store the letter we just printed on the stack
-
- JSR SetTextWindow      \ Set the text window for the logger
-
-                        \ Y = button number
-                        \
-                        \ X = handset (bit 7 set = side)
-
- PLA                    \ Restore the letter from the stack
-
- JSR OSWRCH             \ Print the letter
-
- LDA #26                \ Restore the default text window and return from the subroutine using
- JMP OSWRCH             \ a tail call
+ JMP OSWRCH             \ Print the letter into logger (the text window) and
+                        \ return from the subroutine using a tail call
 
 \ ******************************************************************************
 \
