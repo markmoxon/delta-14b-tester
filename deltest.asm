@@ -163,20 +163,21 @@
 
 .loop1
 
- LDY #(b_14 - b_table)  \ So set a decreasing counter in Y to work through the
-                        \ Delta 14B buttons in b_table
+ LDY #12                \ So set a decreasing counter in Y to work through the
+                        \ 12 Delta 14B buttons in the buttons table
 
 .loop2
 
- LDA #0                 \ Clear bit 7 of A so b_14 scans the rear socket
+ LDA #0                 \ Clear bit 7 of A so ReadDelta14B scans the rear socket
 
- JSR b_14               \ Call b_14 to check the Delta 14B joystick buttons and
-                        \ populate the key logger
+ JSR ReadDelta14B       \ Read the Delta 14B joystick buttons and update the
+                        \ screen
 
- LDA #%10000000         \ Set bit 7 of A so b_14 scans the side socket
+ LDA #%10000000         \ Set bit 7 of A so ReadDelta14B scans the side socket
 
- JSR b_14               \ Call b_14 to check the Delta 14B joystick buttons and
-                        \ populate the key logger
+ JSR ReadDelta14B       \ Read the Delta 14B joystick buttons and update the
+                        \ screen
+
 
  DEY                    \ Decrement the loop counter
 
@@ -1097,7 +1098,7 @@
 
 \ ******************************************************************************
 \
-\       Name: b_table
+\       Name: buttons
 \       Type: Variable
 \   Category: Keyboard
 \    Summary: Lookup table for Delta 14B joystick buttons
@@ -1120,7 +1121,7 @@
 \
 \ ******************************************************************************
 
-.b_table
+.buttons
 
  EQUB &61               \ Left column    Top row              A
  EQUB &51               \ Middle column  Top row              B
@@ -1140,10 +1141,10 @@
 
 \ ******************************************************************************
 \
-\       Name: b_14
+\       Name: ReadDelta14B
 \       Type: Subroutine
 \   Category: Keyboard
-\    Summary: Scan the Delta 14B joystick buttons
+\    Summary: Scan the Delta 14B joystick buttons and update the screen
 \
 \ ------------------------------------------------------------------------------
 \
@@ -1155,7 +1156,7 @@
 \
 \                         * Bit 7 set = side socket
 \
-\   Y                   The offset into the b_table table of the button that we
+\   Y                   The offset into the buttons table of the button that we
 \                       want to scan on the Delta 14B
 \
 \ ------------------------------------------------------------------------------
@@ -1174,37 +1175,13 @@
 \
 \ ******************************************************************************
 
-.b_14
-
-                        \ This is the entry point for the routine, which is
-                        \ called with A = 128 (the value of BSTK when the Delta
-                        \ 14b is enabled), and if the key we are checking has a
-                        \ corresponding button on the Delta 14B, it is run a
-                        \ second time with A = 0
+.ReadDelta14B
 
  TAX                    \ Store A in X so we can restore it below
 
- EOR b_table-1,Y        \ We now EOR the value in A with the Y-th entry in
- BEQ b_quit             \ b_table, and jump to b_quit to return from the
-                        \ subroutine if the table entry is 128 (&80) - in other
-                        \ words, we quit if Y is the offset for the roll and
-                        \ pitch controls
-
-                        \ If we get here, then the offset in Y points to a
-                        \ control with a corresponding button on the Delta 14B,
-                        \ and we pass through the following twice, once with a
-                        \ starting value of A = 128, and again with a starting
-                        \ value of A = 0
-                        \
-                        \ On the first pass, the EOR will set A to the value
-                        \ from b_table but with bit 7 set, which means we scan
-                        \ the joystick plugged into the side socket of the
-                        \ Delta 14B adaptor
-                        \
-                        \ On the second pass, the EOR will set A to the value
-                        \ from b_table (i.e. with bit 7 clear), which means we
-                        \ scan the joystick plugged into the rear socket of the
-                        \ Delta 14B adaptor
+ EOR buttons-1,Y        \ Fetch this button's entry from the buttons table and
+                        \ set bit 7 according to the socket that we want to scan
+                        \ (which is defined in bit 7 of A)
 
  STA VIA+&60            \ Set 6522 User VIA output register ORB (SHEILA &60) to
                         \ the value in A, which tells the Delta 14B adaptor box
@@ -1240,19 +1217,18 @@
                         \ (bit 0) will go low in the value we read from the user
                         \ port
 
- BEQ b_pressed          \ In the above we AND'd the result from the user port
+ BEQ delt2              \ In the above we AND'd the result from the user port
                         \ with the bottom four bits of the table value (the
-                        \ low nibble). The low nibble in b_table contains
+                        \ low nibble). The low nibble in buttons contains
                         \ a 1 in the relevant position for that row that
                         \ corresponds with the clear bit in the response from
                         \ the user port, so if we AND the two together and get
                         \ a zero, that means that button is being pressed, in
-                        \ which case we jump to b_pressed to update the key
-                        \ logger for that button
+                        \ which case we jump to delt2 to record the button press
                         \
-                        \ For example, take the b_table entry for the escape pod
+                        \ For example, take the buttons entry for the escape pod
                         \ button, in the right column and third row. The value
-                        \ in b_table is &34. The high nibble denotes the column,
+                        \ in buttons is &34. The high nibble denotes the column,
                         \ which is &3 = %011, which means in the STA VIA+&60
                         \ above, we write %1011 in the first pass (when A = 128)
                         \ to set the right column for the side socket joystick,
@@ -1260,7 +1236,7 @@
                         \ set the right column for the rear socket joystick
                         \
                         \ Now for the row. The low nibble of the &34 value
-                        \ from b_table contains the row, so that's &4 = %0100.
+                        \ from buttons contains the row, so that's &4 = %0100.
                         \ When we read the user port, then we will fetch %1011
                         \ from VIA+&60 if the button in the third row is being
                         \ pressed, so when we AND the two together, we get:
@@ -1272,12 +1248,12 @@
                         \ all, then the result will be non-zero and we move on
                         \ to the next button
 
-.b_quit
+.delt1
 
  LDA #0                 \ Print the button letter without a highlight and return
  JMP PrintButtonLetter  \ from the subroutine using a tail call
 
-.b_pressed
+.delt2
 
  LDA #1                 \ Print the button letter with a highlight
  JSR PrintButtonLetter
