@@ -36,6 +36,18 @@
 
  SKIP 2                 \ Screen address
 
+.MOS
+
+ SKIP 1                 \ Records the machine type:
+                        \
+                        \   * 0 = BBC Micro/Electron
+                        \
+                        \   * &FF = BBC Master/Compact
+
+.FONT
+
+ SKIP 2                 \ Address of the character font in the MOS
+
 .aStore
 
  SKIP 1                 \ Temporary storage for the A register
@@ -96,6 +108,54 @@
                         \ to the button columns to select the column we are
                         \ interested in) and PB0 to PB3 as input (so we can read
                         \ from the button rows)
+
+ LDA #0                 \ Call OSBYTE with A = 0 and X = 1 to detect the OS
+ LDX #1                 \ type, which returns the following in X:
+ JSR OSBYTE             \
+                        \   * 0 = Electron
+                        \
+                        \   * 1 = BBC Micro
+                        \
+                        \   * 2 = BBC Micro B+
+                        \
+                        \   * 3 = BBC Master
+                        \
+                        \   * 4 = BBC Master ET
+                        \
+                        \   * 5 = BBC Master Compact
+
+ CPX #3                 \ If X >= 3 then this is a Master, so jump to mast1
+ BCS mast1
+
+ LDA #&BF               \ Set FONT to the correct values for the BBC Micro and
+ STA FONT               \ Acorn Electron, for use in PrintCharacter
+ LDA #&C1
+ STA FONT+1
+
+ LDA #0                 \ Set MOS = 0 to indicate that this is a BBC Micro or
+ STA MOS                \ Acorn Electron
+
+ BEQ mast2              \ Jump to mast2 to skip the following (this BEQ is
+                        \ effectively a JMP as A is always zero)
+
+.mast1
+
+ LDA #&88               \ Set FONT to the correct values for the BBC Master, for
+ STA FONT               \ use in PrintCharacter
+ LDA #&8A
+ STA FONT+1
+
+ LDA VIA+&30            \ Set bit 7 of the ROM Select latch at SHEILA &30 to
+ ORA #%10000000         \ switch the MOS ROM into &8000-&BFFF, updating the RAM
+ STA &F4                \ copy in &F4 at the same time
+ STA VIA+&30            \
+                        \ This ensures that the MOS ROM font is paged into
+                        \ memory so PrintCharacter can access it
+
+ LDA #&FF               \ Set MOS = &FF to indicate that this is a BBC Micro or
+ STA MOS                \ Acorn Electron
+
+.mast2
 
  JSR DrawScreen         \ Set up the screen display
 
@@ -925,14 +985,16 @@
                         \
                         \ We'll refer to this below
 
- LDX #&BF               \ Set X to point to the first font page in ROM minus 1,
-                        \ which is &C0 - 1, or &BF
+ LDX FONT               \ Set X to point to the first font page in ROM minus 1,
+                        \ which is &C0 - 1, or &BF, in the BBC Micro/Electron, or
+                        \ &88 - 1, or &87, in the BBC Master
 
  ASL A                  \ If bit 6 of the character is clear (A is 32-63)
  ASL A                  \ then skip the following instruction
  BCC P%+4
 
- LDX #&C1               \ A is 64-126, so set X to point to page &C1
+ LDX FONT+1             \ A is 64-126, so set X to point to page &C1 for the BBC
+                        \ Micro/Electron, or &8A for the BBC Master
 
  ASL A                  \ If bit 5 of the character is clear (A is 64-95)
  BCC P%+3               \ then skip the following instruction
