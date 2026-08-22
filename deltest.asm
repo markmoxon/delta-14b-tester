@@ -178,6 +178,7 @@
  JSR ReadDelta14B       \ Read the Delta 14B joystick buttons and update the
                         \ screen
 
+ JSR ReadADC            \ Read the analogue port and update the screen
 
  DEY                    \ Decrement the loop counter
 
@@ -1260,6 +1261,74 @@
 
  JMP OSWRCH             \ Print the letter into logger (the text window) and
                         \ return from the subroutine using a tail call
+
+\ ******************************************************************************
+\
+\       Name: ReadADC
+\       Type: Subroutine
+\   Category: Keyboard
+\    Summary: Scan the analogue port and update the screen
+\
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   Y                   Y is preserved
+\
+\ ******************************************************************************
+
+.ReadADC
+
+ STY yStore             \ Store Y in yStore
+
+ LDX #1                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
+ LDA #128               \ from ADC channel 1 (the rear joystick X value),
+ JSR OSBYTE             \ returning the value in (Y X)
+
+                        \ Print (Y X) on-screen at (10, 2)
+
+                        \ Highlight left/right arrow
+
+ LDX #2                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
+ LDA #128               \ from ADC channel 2 (the rear joystick Y value),
+ JSR OSBYTE             \ returning the value in (Y X)
+
+                        \ Print (Y X) on-screen at (10, 3)
+
+                        \ Highlight up/down arrow
+
+ LDX #3                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
+ LDA #128               \ from ADC channel 3 (the side joystick X value),
+ JSR OSBYTE             \ returning the value in (Y X)
+
+                        \ Print (Y X) on-screen at (31, 2)
+
+                        \ Highlight left/right arrow
+
+ LDX #4                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
+ LDA #128               \ from ADC channel 4 (the side joystick Y value),
+ JSR OSBYTE             \ returning the value in (Y X)
+
+                        \ Print (Y X) on-screen at (31, 3)
+
+                        \ Highlight up/down arrow
+
+ LDA #&51               \ Set 6522 User VIA output register ORB (SHEILA &60) to
+ STA VIA+&60            \ the Delta 14B joystick button in the middle column
+                        \ (high nibble &5) and top row (low nibble &1), which
+                        \ corresponds to the fire button
+
+ LDY #14                \ Read 6522 System VIA input register IRB (SHEILA &40),
+ LDA &FE40              \ which has bit 4 clear if the rear joystick's fire
+                        \ button is pressed (otherwise it's set), bit 5 clear
+                        \ if the side joystick's fire button is pressed
+                        \ (otherwise it's set)
+
+                        \ Highlight joystick fire buttons
+
+ LDY yStore             \ Retrieve Y
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
