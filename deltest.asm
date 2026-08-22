@@ -178,11 +178,11 @@
  JSR ReadDelta14B       \ Read the Delta 14B joystick buttons and update the
                         \ screen
 
- JSR ReadADC            \ Read the analogue port and update the screen
-
  DEY                    \ Decrement the loop counter
 
  BNE loop2              \ If not zero, loop back to process the next key
+
+ JSR ReadADC            \ Read the analogue port and update the screen
 
  LDA #129               \ Call OSBYTE with A = 129 and (Y X) = 0 to read the
  LDX #0                 \ keyboard
@@ -258,12 +258,12 @@
 
  BPL lvdu4              \ Loop back until we have printed all four
 
- LDY #0                 \ Set Y = 0 to indicate no fire button is being pressed
-
- LDX #0                 \ Print the fire button for the rear stick
+ LDX #0                 \ Print the unpressed fire button for the rear stick
+ LDY #0
  JSR PrintFireButton
 
- LDX #1                 \ Print the fire button for the side stick
+ LDX #1                 \ Print the unpressed fire button for the side stick
+ LDY #0
  JSR PrintFireButton
 
  LDA #5                 \ Print a left arrow at (5, 2)
@@ -634,36 +634,26 @@
 \
 \                         * 1 = fire
 \
-\ ------------------------------------------------------------------------------
-\
-\ Returns:
-\
-\   Y                   Y is preserved
-\
 \ ******************************************************************************
 
 .PrintFireButton
 
- STY yStore             \ Store the state in yStore
-
  JSR SetIndent          \ Store the correct indent for this stick in xIndent
 
- LDA fireX,Y            \ Set YC to the correct column for this button from the
- CLC                    \ fireX table, adding the correct indent
+ LDA fireX              \ Set YC to the correct column for this button from
+ CLC                    \ fireX, adding the correct indent
  ADC xIndent
  STA XC
 
- LDA fireY,Y            \ Set YC to the correct row for this button from the
- STA YC                 \ fireY table
+ LDA fireY              \ Set YC to the correct row for this button from fireY
+ STA YC
 
- LDA yStore             \ Set Y = Y + 4 to give us the shape number to print
+ TYA                    \ Set Y = Y + 4 to give us the shape number to print
  CLC
  ADC #4
  TAY
 
  JSR PrintShape         \ Print the button as a shape
-
- LDY yStore             \ Retrieve Y
 
  RTS                    \ Return from the subroutine
 
@@ -1269,23 +1259,23 @@
 \   Category: Keyboard
 \    Summary: Scan the analogue port and update the screen
 \
-\ ------------------------------------------------------------------------------
-\
-\ Returns:
-\
-\   Y                   Y is preserved
-\
 \ ******************************************************************************
 
 .ReadADC
 
- STY yStore             \ Store Y in yStore
+ LDA #0                 \ Set the colour to non-highlight
+ JSR SetColour
 
  LDX #1                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
  LDA #128               \ from ADC channel 1 (the rear joystick X value),
  JSR OSBYTE             \ returning the value in (Y X)
 
-                        \ Print (Y X) on-screen at (10, 2)
+ LDA #10                \ Move the cursor to (10, 2)
+ STA XC
+ LDA #2
+ STA YC
+
+ JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
                         \ Highlight left/right arrow
 
@@ -1293,7 +1283,12 @@
  LDA #128               \ from ADC channel 2 (the rear joystick Y value),
  JSR OSBYTE             \ returning the value in (Y X)
 
-                        \ Print (Y X) on-screen at (10, 3)
+ LDA #10                \ Move the cursor to (10, 2)
+ STA XC
+ LDA #3
+ STA YC
+
+ JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
                         \ Highlight up/down arrow
 
@@ -1301,7 +1296,12 @@
  LDA #128               \ from ADC channel 3 (the side joystick X value),
  JSR OSBYTE             \ returning the value in (Y X)
 
-                        \ Print (Y X) on-screen at (31, 2)
+ LDA #31                \ Move the cursor to (31, 2)
+ STA XC
+ LDA #2
+ STA YC
+
+ JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
                         \ Highlight left/right arrow
 
@@ -1309,7 +1309,12 @@
  LDA #128               \ from ADC channel 4 (the side joystick Y value),
  JSR OSBYTE             \ returning the value in (Y X)
 
-                        \ Print (Y X) on-screen at (31, 3)
+ LDA #31                \ Move the cursor to (31, 3)
+ STA XC
+ LDA #3
+ STA YC
+
+ JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
                         \ Highlight up/down arrow
 
@@ -1318,15 +1323,114 @@
                         \ (high nibble &5) and top row (low nibble &1), which
                         \ corresponds to the fire button
 
- LDY #14                \ Read 6522 System VIA input register IRB (SHEILA &40),
- LDA &FE40              \ which has bit 4 clear if the rear joystick's fire
+ LDA &FE40              \ Read 6522 System VIA input register IRB (SHEILA &40),
+                        \ which has bit 4 clear if the rear joystick's fire
                         \ button is pressed (otherwise it's set), bit 5 clear
                         \ if the side joystick's fire button is pressed
                         \ (otherwise it's set)
 
-                        \ Highlight joystick fire buttons
+ LSR A                  \ Extract the low nibble of A, so bits 0 and 1 are set
+ LSR A                  \ to bits 4 and 5 from the original value of A
+ LSR A
+ LSR A
 
- LDY yStore             \ Retrieve Y
+ PHA                    \ Store A on the stack
+
+ AND #1                 \ Set Y to bit 4 of the original A, inverted
+ EOR #1
+ TAY
+
+ LDX #0                 \ Draw the rear stick's fire button according to Y
+ JSR PrintFireButton
+
+ PLA                    \ Restore A from the stack
+
+ LSR A                  \ Set Y to bit 5 of the original A, inverted
+ AND #1
+ EOR #1
+ TAY
+
+ LDX #1                 \ Draw the side stick's fire button according to Y
+ JSR PrintFireButton
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: PrintHexWord
+\       Type: Subroutine
+\   Category: Utility routines
+\    Summary: Print the 16-bit word in (Y X) in hexadecimal, followed by a full
+\             stop and a carriage return
+\
+\ ******************************************************************************
+
+.PrintHexWord
+
+ TYA                    \ Print the value in Y in hexadecimal
+ JSR PrintHexByte
+
+ TXA                    \ Print the value in X in hexadecimal
+ JSR PrintHexByte
+
+                        \ So we have just printed (Y X) in hexadecimal
+
+ RTS                    \ Return from the subroutine
+
+\ ******************************************************************************
+\
+\       Name: PrintHexByte
+\       Type: Subroutine
+\   Category: Utility routines
+\    Summary: Print the byte in A in hexadecimal
+\
+\ ******************************************************************************
+
+.PrintHexByte
+
+ PHA                    \ Store A on the stack
+
+ AND #&F0               \ Extract the top nibble of A into bits 0-3 of A
+ LSR A
+ LSR A
+ LSR A
+ LSR A
+
+ JSR PrintHexDigit      \ Call PrintHexDigit to print the top nibble as a
+                        \ hexedecimal digit
+
+ PLA                    \ Restore the original value of A from the stack and
+ AND #&0F               \ extract the bottom nibble of A into bits 0-3 of A
+
+                        \ Fall into PrintHexDigit to print the bottom nibble as
+                        \ a hexedecimal digit
+
+\ ******************************************************************************
+\
+\       Name: PrintHexDigit
+\       Type: Subroutine
+\   Category: Utility routines
+\    Summary: Print the nibble in A in hexadecimal
+\
+\ ******************************************************************************
+
+.PrintHexDigit
+
+ CLC                    \ Set A to ASCII "0" plus A, so A contains the ASCII
+ ADC #'0'               \ character that represents A
+
+ CMP #'9'+1             \ If A is in the range "0" to "9" then it is already a
+ BCC phex1              \ valid hexdecimal digit, so jump to phex1 to print it
+
+ CLC                    \ Otherwise the hexadecimal value is in the range "A" to
+ ADC #7                 \ "F", so add 7 to bump ":" to ">" up to "A" to "F"
+
+.phex1
+
+ JSR PrintCharacter     \ Print the hexadecimal digit in A and return from the
+                        \ subroutine using a tail call
+
+ INC XC                 \ Move the text cursor along
 
  RTS                    \ Return from the subroutine
 
