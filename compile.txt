@@ -18,6 +18,8 @@
      007A
 .P
      007B
+.arrowGroup
+     007E
 .ENTRY
      4000   A9 F0      LDA #&F0
      4002   8D 62 FE   STA &FE62
@@ -46,23 +48,23 @@
      4032   85 72      STA &72
 .mast2
      4034   20 5B 40   JSR &405B
-     4037   20 51 42   JSR &4251
+     4037   20 D6 42   JSR &42D6
 .loop1
      403A   A0 0C      LDY #&0C
 .loop2
      403C   A9 00      LDA #&00
-     403E   20 EC 42   JSR &42EC
+     403E   20 71 43   JSR &4371
      4041   A9 80      LDA #&80
-     4043   20 EC 42   JSR &42EC
+     4043   20 71 43   JSR &4371
      4046   88         DEY
      4047   D0 F3      BNE &403C
-     4049   20 07 43   JSR &4307
+     4049   20 8C 43   JSR &438C
      404C   A9 81      LDA #&81
      404E   A2 00      LDX #&00
      4050   A0 00      LDY #&00
      4052   20 F4 FF   JSR &FFF4
      4055   B0 E3      BCS &403A
-     4057   20 7E 42   JSR &427E
+     4057   20 03 43   JSR &4303
      405A   60         RTS
 .DrawScreen
      405B   A2 00      LDX #&00
@@ -78,10 +80,10 @@
 .lvdu3
      406C   A2 00      LDX #&00
      406E   A9 00      LDA #&00
-     4070   20 EE 41   JSR &41EE
+     4070   20 73 42   JSR &4273
      4073   A2 01      LDX #&01
      4075   A9 00      LDA #&00
-     4077   20 EE 41   JSR &41EE
+     4077   20 73 42   JSR &4273
      407A   C8         INY
      407B   C0 0D      CPY #&0D
      407D   90 ED      BCC &406C
@@ -89,48 +91,48 @@
 .lvdu4
      4081   A2 00      LDX #&00
      4083   A9 00      LDA #&00
-     4085   20 B8 41   JSR &41B8
+     4085   20 3D 42   JSR &423D
      4088   A2 01      LDX #&01
      408A   A9 00      LDA #&00
-     408C   20 B8 41   JSR &41B8
+     408C   20 3D 42   JSR &423D
      408F   88         DEY
      4090   10 EF      BPL &4081
      4092   A2 00      LDX #&00
      4094   A0 00      LDY #&00
-     4096   20 D5 41   JSR &41D5
+     4096   20 5A 42   JSR &425A
      4099   A2 01      LDX #&01
      409B   A0 00      LDY #&00
-     409D   20 D5 41   JSR &41D5
+     409D   20 5A 42   JSR &425A
      40A0   A9 05      LDA #&05
      40A2   85 78      STA &78
      40A4   A9 02      LDA #&02
      40A6   85 79      STA &79
      40A8   A0 00      LDY #&00
-     40AA   20 83 42   JSR &4283
+     40AA   20 08 43   JSR &4308
      40AD   E6 79      INC &79
      40AF   A0 03      LDY #&03
-     40B1   20 83 42   JSR &4283
+     40B1   20 08 43   JSR &4308
      40B4   E6 78      INC &78
      40B6   E6 78      INC &78
      40B8   A0 02      LDY #&02
-     40BA   20 83 42   JSR &4283
+     40BA   20 08 43   JSR &4308
      40BD   C6 79      DEC &79
      40BF   A0 01      LDY #&01
-     40C1   20 83 42   JSR &4283
+     40C1   20 08 43   JSR &4308
      40C4   A9 1A      LDA #&1A
      40C6   85 78      STA &78
      40C8   A0 00      LDY #&00
-     40CA   20 83 42   JSR &4283
+     40CA   20 08 43   JSR &4308
      40CD   E6 79      INC &79
      40CF   A0 03      LDY #&03
-     40D1   20 83 42   JSR &4283
+     40D1   20 08 43   JSR &4308
      40D4   E6 78      INC &78
      40D6   E6 78      INC &78
      40D8   A0 02      LDY #&02
-     40DA   20 83 42   JSR &4283
+     40DA   20 08 43   JSR &4308
      40DD   C6 79      DEC &79
      40DF   A0 01      LDY #&01
-     40E1   20 83 42   JSR &4283
+     40E1   20 08 43   JSR &4308
      40E4   60         RTS
 .vduCommands
      40E5   16
@@ -274,277 +276,380 @@
      41B6   09
 .fireY
      41B7   06
-.PrintArrow
-     41B8   84 76      STY &76
-     41BA   20 3D 42   JSR &423D
-     41BD   20 46 42   JSR &4246
-     41C0   B9 AE 41   LDA &41AE,Y
-     41C3   18         CLC
-     41C4   65 77      ADC &77
-     41C6   85 78      STA &78
-     41C8   B9 B2 41   LDA &41B2,Y
-     41CB   85 79      STA &79
-     41CD   A4 76      LDY &76
-     41CF   20 83 42   JSR &4283
-     41D2   A4 76      LDY &76
-     41D4   60         RTS
-.PrintFireButton
-     41D5   20 46 42   JSR &4246
-     41D8   AD B6 41   LDA &41B6
-     41DB   18         CLC
-     41DC   65 77      ADC &77
-     41DE   85 78      STA &78
-     41E0   AD B7 41   LDA &41B7
-     41E3   85 79      STA &79
-     41E5   98         TYA
-     41E6   18         CLC
-     41E7   69 04      ADC #&04
-     41E9   A8         TAY
-     41EA   20 83 42   JSR &4283
-     41ED   60         RTS
-.PrintButtonLetter
-     41EE   84 76      STY &76
-     41F0   20 3D 42   JSR &423D
-     41F3   20 46 42   JSR &4246
-     41F6   B9 95 41   LDA &4195,Y
-     41F9   18         CLC
-     41FA   65 77      ADC &77
-     41FC   85 78      STA &78
-     41FE   B9 A1 41   LDA &41A1,Y
-     4201   85 79      STA &79
-     4203   98         TYA
-     4204   18         CLC
-     4205   69 40      ADC #&40
-     4207   E0 00      CPX #&00
-     4209   F0 02      BEQ &420D
-     420B   09 20      ORA #&20
-.prin2
-     420D   20 95 42   JSR &4295
-     4210   C9 42      CMP #&42
-     4212   F0 04      BEQ &4218
-     4214   C9 62      CMP #&62
-     4216   D0 22      BNE &423A
-.prin3
-     4218   AD 96 41   LDA &4196
-     421B   18         CLC
-     421C   65 77      ADC &77
-     421E   85 78      STA &78
-     4220   A9 08      LDA #&08
-     4222   85 79      STA &79
-     4224   A5 75      LDA &75
-     4226   20 95 42   JSR &4295
-     4229   AD 98 41   LDA &4198
-     422C   18         CLC
-     422D   65 77      ADC &77
-     422F   85 78      STA &78
-     4231   A9 08      LDA #&08
-     4233   85 79      STA &79
-     4235   A5 75      LDA &75
-     4237   20 95 42   JSR &4295
-.prin4
-     423A   A4 76      LDY &76
+.HighlightArrows
+     41B8   CC 27 44   CPY &4427
+     41BB   90 17      BCC &41D4
+     41BD   D0 05      BNE &41C4
+     41BF   EC 26 44   CPX &4426
+     41C2   90 10      BCC &41D4
+.thig1
+     41C4   CC 29 44   CPY &4429
+     41C7   90 51      BCC &421A
+     41C9   B0 2C      BCS &41F7
+     41CB   EC 28 44   CPX &4428
+     41CE   90 4A      BCC &421A
+     41D0   F0 48      BEQ &421A
+     41D2   D0 23      BNE &41F7
+.over1
+     41D4   AA         TAX
+     41D5   A5 7E      LDA &7E
+     41D7   D0 0F      BNE &41E8
+     41D9   A9 00      LDA #&00
+     41DB   A0 00      LDY #&00
+     41DD   20 3D 42   JSR &423D
+     41E0   A9 01      LDA #&01
+     41E2   A0 01      LDY #&01
+     41E4   20 3D 42   JSR &423D
+     41E7   60         RTS
+.overB
+     41E8   A9 01      LDA #&01
+     41EA   A0 02      LDY #&02
+     41EC   20 3D 42   JSR &423D
+     41EF   A9 00      LDA #&00
+     41F1   A0 03      LDY #&03
+     41F3   20 3D 42   JSR &423D
+     41F6   60         RTS
+.over2
+     41F7   AA         TAX
+     41F8   A5 7E      LDA &7E
+     41FA   D0 0F      BNE &420B
+     41FC   A9 01      LDA #&01
+     41FE   A0 00      LDY #&00
+     4200   20 3D 42   JSR &423D
+     4203   A9 00      LDA #&00
+     4205   A0 01      LDY #&01
+     4207   20 3D 42   JSR &423D
+     420A   60         RTS
+.overA
+     420B   A9 00      LDA #&00
+     420D   A0 02      LDY #&02
+     420F   20 3D 42   JSR &423D
+     4212   A9 01      LDA #&01
+     4214   A0 03      LDY #&03
+     4216   20 3D 42   JSR &423D
+     4219   60         RTS
+.over3
+     421A   AA         TAX
+     421B   A5 7E      LDA &7E
+     421D   D0 0F      BNE &422E
+     421F   A9 00      LDA #&00
+     4221   A0 00      LDY #&00
+     4223   20 3D 42   JSR &423D
+     4226   A9 00      LDA #&00
+     4228   A0 01      LDY #&01
+     422A   20 3D 42   JSR &423D
+     422D   60         RTS
+.over5
+     422E   A9 00      LDA #&00
+     4230   A0 02      LDY #&02
+     4232   20 3D 42   JSR &423D
+     4235   A9 00      LDA #&00
+     4237   A0 03      LDY #&03
+     4239   20 3D 42   JSR &423D
      423C   60         RTS
+.PrintArrow
+     423D   84 76      STY &76
+     423F   20 C2 42   JSR &42C2
+     4242   20 CB 42   JSR &42CB
+     4245   B9 AE 41   LDA &41AE,Y
+     4248   18         CLC
+     4249   65 77      ADC &77
+     424B   85 78      STA &78
+     424D   B9 B2 41   LDA &41B2,Y
+     4250   85 79      STA &79
+     4252   A4 76      LDY &76
+     4254   20 08 43   JSR &4308
+     4257   A4 76      LDY &76
+     4259   60         RTS
+.PrintFireButton
+     425A   20 CB 42   JSR &42CB
+     425D   AD B6 41   LDA &41B6
+     4260   18         CLC
+     4261   65 77      ADC &77
+     4263   85 78      STA &78
+     4265   AD B7 41   LDA &41B7
+     4268   85 79      STA &79
+     426A   98         TYA
+     426B   18         CLC
+     426C   69 04      ADC #&04
+     426E   A8         TAY
+     426F   20 08 43   JSR &4308
+     4272   60         RTS
+.PrintButtonLetter
+     4273   84 76      STY &76
+     4275   20 C2 42   JSR &42C2
+     4278   20 CB 42   JSR &42CB
+     427B   B9 95 41   LDA &4195,Y
+     427E   18         CLC
+     427F   65 77      ADC &77
+     4281   85 78      STA &78
+     4283   B9 A1 41   LDA &41A1,Y
+     4286   85 79      STA &79
+     4288   98         TYA
+     4289   18         CLC
+     428A   69 40      ADC #&40
+     428C   E0 00      CPX #&00
+     428E   F0 02      BEQ &4292
+     4290   09 20      ORA #&20
+.prin2
+     4292   20 1A 43   JSR &431A
+     4295   C9 42      CMP #&42
+     4297   F0 04      BEQ &429D
+     4299   C9 62      CMP #&62
+     429B   D0 22      BNE &42BF
+.prin3
+     429D   AD 96 41   LDA &4196
+     42A0   18         CLC
+     42A1   65 77      ADC &77
+     42A3   85 78      STA &78
+     42A5   A9 08      LDA #&08
+     42A7   85 79      STA &79
+     42A9   A5 75      LDA &75
+     42AB   20 1A 43   JSR &431A
+     42AE   AD 98 41   LDA &4198
+     42B1   18         CLC
+     42B2   65 77      ADC &77
+     42B4   85 78      STA &78
+     42B6   A9 08      LDA #&08
+     42B8   85 79      STA &79
+     42BA   A5 75      LDA &75
+     42BC   20 1A 43   JSR &431A
+.prin4
+     42BF   A4 76      LDY &76
+     42C1   60         RTS
 .SetColour
-     423D   C9 00      CMP #&00
-     423F   F0 02      BEQ &4243
-     4241   A9 FF      LDA #&FF
+     42C2   C9 00      CMP #&00
+     42C4   F0 02      BEQ &42C8
+     42C6   A9 FF      LDA #&FF
 .scol1
-     4243   85 7A      STA &7A
-     4245   60         RTS
+     42C8   85 7A      STA &7A
+     42CA   60         RTS
 .SetIndent
-     4246   A9 00      LDA #&00
-     4248   E0 00      CPX #&00
-     424A   F0 02      BEQ &424E
-     424C   A9 15      LDA #&15
+     42CB   A9 00      LDA #&00
+     42CD   E0 00      CPX #&00
+     42CF   F0 02      BEQ &42D3
+     42D1   A9 15      LDA #&15
 .arrw1
-     424E   85 77      STA &77
-     4250   60         RTS
+     42D3   85 77      STA &77
+     42D5   60         RTS
 .SetTextWindow
-     4251   A9 11      LDA #&11
-     4253   20 EE FF   JSR &FFEE
-     4256   A9 01      LDA #&01
-     4258   20 EE FF   JSR &FFEE
-     425B   A9 11      LDA #&11
-     425D   20 EE FF   JSR &FFEE
-     4260   A9 80      LDA #&80
-     4262   20 EE FF   JSR &FFEE
-     4265   A9 1C      LDA #&1C
-     4267   20 EE FF   JSR &FFEE
-     426A   A9 00      LDA #&00
-     426C   20 EE FF   JSR &FFEE
-     426F   A9 18      LDA #&18
-     4271   20 EE FF   JSR &FFEE
-     4274   A9 27      LDA #&27
-     4276   20 EE FF   JSR &FFEE
-     4279   A9 10      LDA #&10
-     427B   4C EE FF   JMP &FFEE
+     42D6   A9 11      LDA #&11
+     42D8   20 EE FF   JSR &FFEE
+     42DB   A9 01      LDA #&01
+     42DD   20 EE FF   JSR &FFEE
+     42E0   A9 11      LDA #&11
+     42E2   20 EE FF   JSR &FFEE
+     42E5   A9 80      LDA #&80
+     42E7   20 EE FF   JSR &FFEE
+     42EA   A9 1C      LDA #&1C
+     42EC   20 EE FF   JSR &FFEE
+     42EF   A9 00      LDA #&00
+     42F1   20 EE FF   JSR &FFEE
+     42F4   A9 18      LDA #&18
+     42F6   20 EE FF   JSR &FFEE
+     42F9   A9 27      LDA #&27
+     42FB   20 EE FF   JSR &FFEE
+     42FE   A9 10      LDA #&10
+     4300   4C EE FF   JMP &FFEE
 .ResetTextWindow
-     427E   A9 1A      LDA #&1A
-     4280   4C EE FF   JMP &FFEE
+     4303   A9 1A      LDA #&1A
+     4305   4C EE FF   JMP &FFEE
 .PrintShape
-     4283   85 75      STA &75
-     4285   98         TYA
-     4286   0A         ASL A
-     4287   A8         TAY
-     4288   B9 5A 41   LDA &415A,Y
-     428B   85 7C      STA &7C
-     428D   B9 5B 41   LDA &415B,Y
-     4290   85 7D      STA &7D
-     4292   4C A7 42   JMP &42A7
+     4308   85 75      STA &75
+     430A   98         TYA
+     430B   0A         ASL A
+     430C   A8         TAY
+     430D   B9 5A 41   LDA &415A,Y
+     4310   85 7C      STA &7C
+     4312   B9 5B 41   LDA &415B,Y
+     4315   85 7D      STA &7D
+     4317   4C 2C 43   JMP &432C
 .PrintCharacter
-     4295   85 75      STA &75
-     4297   A6 73      LDX &73
-     4299   0A         ASL A
-     429A   0A         ASL A
-     429B   90 02      BCC &429F
-     429D   A6 74      LDX &74
-     429F   0A         ASL A
-     42A0   90 01      BCC &42A3
-     42A2   E8         INX
-     42A3   85 7C      STA &7C
-     42A5   86 7D      STX &7D
+     431A   85 75      STA &75
+     431C   A6 73      LDX &73
+     431E   0A         ASL A
+     431F   0A         ASL A
+     4320   90 02      BCC &4324
+     4322   A6 74      LDX &74
+     4324   0A         ASL A
+     4325   90 01      BCC &4328
+     4327   E8         INX
+     4328   85 7C      STA &7C
+     432A   86 7D      STX &7D
 .char1
-     42A7   A9 00      LDA #&00
-     42A9   85 70      STA &70
-     42AB   A5 79      LDA &79
-     42AD   4A         LSR A
-     42AE   66 70      ROR &70
-     42B0   4A         LSR A
-     42B1   66 70      ROR &70
-     42B3   65 79      ADC &79
-     42B5   69 60      ADC #&60
-     42B7   85 71      STA &71
-     42B9   A9 00      LDA #&00
-     42BB   85 7B      STA &7B
-     42BD   A5 78      LDA &78
-     42BF   0A         ASL A
-     42C0   26 7B      ROL &7B
-     42C2   0A         ASL A
-     42C3   26 7B      ROL &7B
-     42C5   0A         ASL A
-     42C6   26 7B      ROL &7B
-     42C8   65 70      ADC &70
-     42CA   85 70      STA &70
-     42CC   A5 71      LDA &71
-     42CE   65 7B      ADC &7B
-     42D0   85 71      STA &71
-     42D2   A0 07      LDY #&07
+     432C   A9 00      LDA #&00
+     432E   85 70      STA &70
+     4330   A5 79      LDA &79
+     4332   4A         LSR A
+     4333   66 70      ROR &70
+     4335   4A         LSR A
+     4336   66 70      ROR &70
+     4338   65 79      ADC &79
+     433A   69 60      ADC #&60
+     433C   85 71      STA &71
+     433E   A9 00      LDA #&00
+     4340   85 7B      STA &7B
+     4342   A5 78      LDA &78
+     4344   0A         ASL A
+     4345   26 7B      ROL &7B
+     4347   0A         ASL A
+     4348   26 7B      ROL &7B
+     434A   0A         ASL A
+     434B   26 7B      ROL &7B
+     434D   65 70      ADC &70
+     434F   85 70      STA &70
+     4351   A5 71      LDA &71
+     4353   65 7B      ADC &7B
+     4355   85 71      STA &71
+     4357   A0 07      LDY #&07
 .RRL1
-     42D4   B1 7C      LDA (&7C),Y
-     42D6   45 7A      EOR &7A
-     42D8   91 70      STA (&70),Y
-     42DA   88         DEY
-     42DB   10 F7      BPL &42D4
-     42DD   A5 75      LDA &75
-     42DF   60         RTS
+     4359   B1 7C      LDA (&7C),Y
+     435B   45 7A      EOR &7A
+     435D   91 70      STA (&70),Y
+     435F   88         DEY
+     4360   10 F7      BPL &4359
+     4362   A5 75      LDA &75
+     4364   60         RTS
 .buttons
-     42E0   61
-     42E1   51
-     42E2   31
-     42E3   62
-     42E4   52
-     42E5   32
-     42E6   64
-     42E7   54
-     42E8   34
-     42E9   68
-     42EA   58
-     42EB   38
+     4365   61
+     4366   51
+     4367   31
+     4368   62
+     4369   52
+     436A   32
+     436B   64
+     436C   54
+     436D   34
+     436E   68
+     436F   58
+     4370   38
 .ReadDelta14B
-     42EC   AA         TAX
-     42ED   59 DF 42   EOR &42DF,Y
-     42F0   8D 60 FE   STA &FE60
-     42F3   29 0F      AND #&0F
-     42F5   2D 60 FE   AND &FE60
-     42F8   F0 05      BEQ &42FF
+     4371   AA         TAX
+     4372   59 64 43   EOR &4364,Y
+     4375   8D 60 FE   STA &FE60
+     4378   29 0F      AND #&0F
+     437A   2D 60 FE   AND &FE60
+     437D   F0 05      BEQ &4384
 .delt1
-     42FA   A9 00      LDA #&00
-     42FC   4C EE 41   JMP &41EE
+     437F   A9 00      LDA #&00
+     4381   4C 73 42   JMP &4273
 .delt2
-     42FF   A9 01      LDA #&01
-     4301   20 EE 41   JSR &41EE
-     4304   4C EE FF   JMP &FFEE
+     4384   A9 01      LDA #&01
+     4386   20 73 42   JSR &4273
+     4389   4C EE FF   JMP &FFEE
 .ReadADC
-     4307   A9 00      LDA #&00
-     4309   20 3D 42   JSR &423D
-     430C   A2 01      LDX #&01
-     430E   A9 80      LDA #&80
-     4310   20 F4 FF   JSR &FFF4
-     4313   A9 0A      LDA #&0A
-     4315   85 78      STA &78
-     4317   A9 02      LDA #&02
-     4319   85 79      STA &79
-     431B   20 78 43   JSR &4378
-     431E   A2 02      LDX #&02
-     4320   A9 80      LDA #&80
-     4322   20 F4 FF   JSR &FFF4
-     4325   A9 0A      LDA #&0A
-     4327   85 78      STA &78
-     4329   A9 03      LDA #&03
-     432B   85 79      STA &79
-     432D   20 78 43   JSR &4378
-     4330   A2 03      LDX #&03
-     4332   A9 80      LDA #&80
-     4334   20 F4 FF   JSR &FFF4
-     4337   A9 1F      LDA #&1F
-     4339   85 78      STA &78
-     433B   A9 02      LDA #&02
-     433D   85 79      STA &79
-     433F   20 78 43   JSR &4378
-     4342   A2 04      LDX #&04
-     4344   A9 80      LDA #&80
-     4346   20 F4 FF   JSR &FFF4
-     4349   A9 1F      LDA #&1F
-     434B   85 78      STA &78
-     434D   A9 03      LDA #&03
-     434F   85 79      STA &79
-     4351   20 78 43   JSR &4378
-     4354   A9 51      LDA #&51
-     4356   8D 60 FE   STA &FE60
-     4359   AD 40 FE   LDA &FE40
-     435C   4A         LSR A
-     435D   4A         LSR A
-     435E   4A         LSR A
-     435F   4A         LSR A
-     4360   48         PHA
-     4361   29 01      AND #&01
-     4363   49 01      EOR #&01
-     4365   A8         TAY
-     4366   A2 00      LDX #&00
-     4368   20 D5 41   JSR &41D5
-     436B   68         PLA
-     436C   4A         LSR A
-     436D   29 01      AND #&01
-     436F   49 01      EOR #&01
-     4371   A8         TAY
-     4372   A2 01      LDX #&01
-     4374   20 D5 41   JSR &41D5
-     4377   60         RTS
+     438C   A9 00      LDA #&00
+     438E   20 C2 42   JSR &42C2
+     4391   A2 01      LDX #&01
+     4393   A9 80      LDA #&80
+     4395   20 F4 FF   JSR &FFF4
+     4398   A9 0A      LDA #&0A
+     439A   85 78      STA &78
+     439C   A9 02      LDA #&02
+     439E   85 79      STA &79
+     43A0   20 2A 44   JSR &442A
+     43A3   A9 00      LDA #&00
+     43A5   85 7E      STA &7E
+     43A7   A9 00      LDA #&00
+     43A9   20 B8 41   JSR &41B8
+     43AC   A2 02      LDX #&02
+     43AE   A9 80      LDA #&80
+     43B0   20 F4 FF   JSR &FFF4
+     43B3   A9 0A      LDA #&0A
+     43B5   85 78      STA &78
+     43B7   A9 03      LDA #&03
+     43B9   85 79      STA &79
+     43BB   20 2A 44   JSR &442A
+     43BE   A9 01      LDA #&01
+     43C0   85 7E      STA &7E
+     43C2   A9 00      LDA #&00
+     43C4   20 B8 41   JSR &41B8
+     43C7   A2 03      LDX #&03
+     43C9   A9 80      LDA #&80
+     43CB   20 F4 FF   JSR &FFF4
+     43CE   A9 1F      LDA #&1F
+     43D0   85 78      STA &78
+     43D2   A9 02      LDA #&02
+     43D4   85 79      STA &79
+     43D6   20 2A 44   JSR &442A
+     43D9   A9 00      LDA #&00
+     43DB   85 7E      STA &7E
+     43DD   A9 01      LDA #&01
+     43DF   20 B8 41   JSR &41B8
+     43E2   A2 04      LDX #&04
+     43E4   A9 80      LDA #&80
+     43E6   20 F4 FF   JSR &FFF4
+     43E9   A9 1F      LDA #&1F
+     43EB   85 78      STA &78
+     43ED   A9 03      LDA #&03
+     43EF   85 79      STA &79
+     43F1   20 2A 44   JSR &442A
+     43F4   A9 01      LDA #&01
+     43F6   85 7E      STA &7E
+     43F8   A9 01      LDA #&01
+     43FA   20 B8 41   JSR &41B8
+     43FD   A9 00      LDA #&00
+     43FF   20 C2 42   JSR &42C2
+     4402   A9 51      LDA #&51
+     4404   8D 60 FE   STA &FE60
+     4407   AD 40 FE   LDA &FE40
+     440A   4A         LSR A
+     440B   4A         LSR A
+     440C   4A         LSR A
+     440D   4A         LSR A
+     440E   48         PHA
+     440F   29 01      AND #&01
+     4411   49 01      EOR #&01
+     4413   A8         TAY
+     4414   A2 00      LDX #&00
+     4416   20 5A 42   JSR &425A
+     4419   68         PLA
+     441A   4A         LSR A
+     441B   29 01      AND #&01
+     441D   49 01      EOR #&01
+     441F   A8         TAY
+     4420   A2 01      LDX #&01
+     4422   20 5A 42   JSR &425A
+     4425   60         RTS
+.lowZone
+     4426   F8 7E
+.highZone
+     4428   F8 80
 .PrintHexWord
-     4378   98         TYA
-     4379   20 81 43   JSR &4381
-     437C   8A         TXA
-     437D   20 81 43   JSR &4381
-     4380   60         RTS
+     442A   98         TYA
+     442B   48         PHA
+     442C   8A         TXA
+     442D   48         PHA
+     442E   A9 00      LDA #&00
+     4430   20 C2 42   JSR &42C2
+     4433   98         TYA
+     4434   20 40 44   JSR &4440
+     4437   8A         TXA
+     4438   20 40 44   JSR &4440
+     443B   68         PLA
+     443C   AA         TAX
+     443D   68         PLA
+     443E   A8         TAY
+     443F   60         RTS
 .PrintHexByte
-     4381   48         PHA
-     4382   29 F0      AND #&F0
-     4384   4A         LSR A
-     4385   4A         LSR A
-     4386   4A         LSR A
-     4387   4A         LSR A
-     4388   20 8E 43   JSR &438E
-     438B   68         PLA
-     438C   29 0F      AND #&0F
+     4440   48         PHA
+     4441   29 F0      AND #&F0
+     4443   4A         LSR A
+     4444   4A         LSR A
+     4445   4A         LSR A
+     4446   4A         LSR A
+     4447   20 4D 44   JSR &444D
+     444A   68         PLA
+     444B   29 0F      AND #&0F
 .PrintHexDigit
-     438E   18         CLC
-     438F   69 30      ADC #&30
-     4391   C9 3A      CMP #&3A
-     4393   90 03      BCC &4398
-     4395   18         CLC
-     4396   69 07      ADC #&07
+     444D   18         CLC
+     444E   69 30      ADC #&30
+     4450   C9 3A      CMP #&3A
+     4452   90 03      BCC &4457
+     4454   18         CLC
+     4455   69 07      ADC #&07
 .phex1
-     4398   20 95 42   JSR &4295
-     439B   E6 78      INC &78
-     439D   60         RTS
+     4457   20 1A 43   JSR &431A
+     445A   E6 78      INC &78
+     445C   60         RTS
 Saving file 'DELTEST'

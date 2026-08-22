@@ -20,6 +20,10 @@
 
  OSBYTE = &FFF4         \ The address for the OSBYTE routine
 
+ CENTRE = &7FF8         \ Channel reading for a centred stick (65,520 / 2)
+
+ DEADZONE = &100        \ Size of deadzone for joystick arrows
+
 \ ******************************************************************************
 \
 \       Name: ZP
@@ -73,7 +77,7 @@
 
 .COL
 
- SKIP 1                 \ The colour to be printed directly to the screen:
+ SKIP 1                 \ The colour to be printed directly to the screen
                         \
                         \   * 0 = normal
                         \
@@ -82,6 +86,14 @@
 .P
 
  SKIP 3                 \ Temporary variable
+
+.arrowGroup
+
+ SKIP 1                 \ The arrow group to highlight in the joystick view
+                        \
+                        \   * 0 = left or right
+                        \
+                        \   * 1 = down or up
 
 \ ******************************************************************************
 \
@@ -546,6 +558,155 @@
 .fireY
 
  EQUB 6                 \ Fire
+
+\ ******************************************************************************
+\
+\       Name: HighlightArrows
+\       Type: Subroutine
+\   Category: Screen
+\    Summary: Highlight a direction arrow for the specified stick if applicable
+\
+\ ------------------------------------------------------------------------------
+
+.HighlightArrows
+
+                        \ We first calculate which arrows we need to highlight,
+                        \ if any
+
+ CPY lowZone+1          \ If Y < high byte of lowZone, then (Y X) < lowZone, so
+ BCC over1              \ jump to over1 to print the arrows accordingly
+
+ BNE thig1              \ If Y > high byte of lowZone, then (Y X) > lowZone, so
+                        \ jump to thig1 to check against the high zone
+
+                        \ If we get here then the high bytes match, so compare
+                        \ the low bytes
+
+ CPX lowZone            \ If X < low byte of lowZone, then (Y X) < lowZone, so
+ BCC over1              \ jump to over1 to print the arrows accordingly
+
+                        \ If we get here then (Y X) >= lowZone, so we now check
+                        \ against the high zone
+
+.thig1
+
+                        \ If we get here then (Y X) >= lowZone
+
+ CPY highZone+1         \ If Y < high byte of highZone, then we are in the
+ BCC over3              \ deadzone, so jump to over3 to print the arrows
+                        \ accordingly
+
+ BCS over2              \ If Y > high byte of highZone, then (Y X) > highZone,
+                        \ so jump to over2 to print the arrows accordingly
+
+                        \ If we get here then the high bytes match, so compare
+                        \ the low bytes
+
+ CPX highZone           \ If X <= low byte of lowZone, then we are in the
+ BCC over3              \ deadzone, so jump to over3 to print the arrows
+ BEQ over3              \ accordingly
+
+ BNE over2              \ If we get here then (Y X) > highZone, so jump to over2
+                        \ to print the arrows accordingly
+
+.over1
+
+                        \ If we get here then (Y X) < lowZone
+                        \
+                        \ So we highlight right or down
+
+ TAX                    \ Set X to the stick to highlight
+
+ LDA arrowGroup         \ If we are highlighting the up and down arrows, jump to
+ BNE overB              \ overB
+
+ LDA #0                 \ Remove highlight from left arrow
+ LDY #0
+ JSR PrintArrow
+
+ LDA #1                 \ Add highlight to right arrow
+ LDY #1
+ JSR PrintArrow
+
+ RTS                    \ Return from the subroutine
+
+.overB
+
+ LDA #1                 \ Add highlight to down arrow
+ LDY #2
+ JSR PrintArrow
+
+ LDA #0                 \ Remove highlight from up arrow
+ LDY #3
+ JSR PrintArrow
+
+ RTS                    \ Return from the subroutine
+
+.over2
+
+                        \ If we get here then (Y X) > highZone
+                        \
+                        \ So we highlight left or up
+
+ TAX                    \ Set X to the stick to highlight
+
+ LDA arrowGroup         \ If we are highlighting the up and down arrows, jump to
+ BNE overA              \ overA
+
+ LDA #1                 \ Add highlight to left arrow
+ LDY #0
+ JSR PrintArrow
+
+ LDA #0                 \ Remove highlight from right arrow
+ LDY #1
+ JSR PrintArrow
+
+ RTS                    \ Return from the subroutine
+
+.overA
+
+ LDA #0                 \ Remove highlight from down arrow
+ LDY #2
+ JSR PrintArrow
+
+ LDA #1                 \ Add highlight to up arrow
+ LDY #3
+ JSR PrintArrow
+
+ RTS                    \ Return from the subroutine
+
+.over3
+
+                        \ If we get here then (Y X) is in the deadzone
+                        \
+                        \ So we highlight neither
+
+ TAX                    \ Set X to the stick to highlight
+
+ LDA arrowGroup         \ If we are highlighting the up and down arrows, jump to
+ BNE over5              \ over5
+
+ LDA #0                 \ Remove highlight from left arrow
+ LDY #0
+ JSR PrintArrow
+
+ LDA #0                 \ Remove highlight from right arrow
+ LDY #1
+ JSR PrintArrow
+
+ RTS                    \ Return from the subroutine
+
+.over5
+
+ LDA #0                 \ Remove highlight from down arrow
+ LDY #2
+ JSR PrintArrow
+
+ LDA #0                 \ Remove highlight from up arrow
+ LDY #3
+ JSR PrintArrow
+
+ RTS                    \ Return from the subroutine
 
 \ ******************************************************************************
 \
@@ -1277,7 +1438,12 @@
 
  JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
-                        \ Highlight left/right arrow
+ LDA #0                 \ Set arrowGroup = 0 so we highlight the left or right
+ STA arrowGroup         \ arrows in the call to HighlightArrows
+
+ LDA #0                 \ Set A = 0 to indicate the rear stick
+
+ JSR HighlightArrows    \ Highlight the left/right arrows for the rear stick
 
  LDX #2                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
  LDA #128               \ from ADC channel 2 (the rear joystick Y value),
@@ -1290,7 +1456,12 @@
 
  JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
-                        \ Highlight up/down arrow
+ LDA #1                 \ Set arrowGroup = 1 so we highlight the up or down
+ STA arrowGroup         \ arrows in the call to HighlightArrows
+
+ LDA #0                 \ Set A = 0 to indicate the rear stick
+
+ JSR HighlightArrows    \ Highlight the up/down arrows for the rear stick
 
  LDX #3                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
  LDA #128               \ from ADC channel 3 (the side joystick X value),
@@ -1303,7 +1474,12 @@
 
  JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
-                        \ Highlight left/right arrow
+ LDA #0                 \ Set arrowGroup = 0 so we highlight the left or right
+ STA arrowGroup         \ arrows in the call to HighlightArrows
+
+ LDA #1                 \ Set A = 1 to indicate the side stick
+
+ JSR HighlightArrows    \ Highlight the left/right arrows for the side stick
 
  LDX #4                 \ Call OSBYTE with A = 128 to fetch the 16-bit value
  LDA #128               \ from ADC channel 4 (the side joystick Y value),
@@ -1316,7 +1492,15 @@
 
  JSR PrintHexWord       \ Print (Y X) in hexadecimal
 
-                        \ Highlight up/down arrow
+ LDA #1                 \ Set arrowGroup = 1 so we highlight the up or down
+ STA arrowGroup         \ arrows in the call to HighlightArrows
+
+ LDA #1                 \ Set A = 1 to indicate the side stick
+
+ JSR HighlightArrows    \ Highlight the up/down arrows for the side stick
+
+ LDA #0                 \ Set the colour to non-highlight as we don't want to
+ JSR SetColour          \ highlight the fire buttons
 
  LDA #&51               \ Set 6522 User VIA output register ORB (SHEILA &60) to
  STA VIA+&60            \ the Delta 14B joystick button in the middle column
@@ -1357,15 +1541,57 @@
 
 \ ******************************************************************************
 \
+\       Name: lowZone
+\       Type: Variable
+\   Category: Keyboard
+\    Summary: The low analogue at the edge of the deadzone
+\
+\ ******************************************************************************
+
+.lowZone
+
+ EQUW CENTRE - DEADZONE
+
+\ ******************************************************************************
+\
+\       Name: highZone
+\       Type: Variable
+\   Category: Keyboard
+\    Summary: The high analogue at the edge of the deadzone
+\
+\ ******************************************************************************
+
+.highZone
+
+ EQUW CENTRE + DEADZONE
+
+\ ******************************************************************************
+\
 \       Name: PrintHexWord
 \       Type: Subroutine
 \   Category: Utility routines
 \    Summary: Print the 16-bit word in (Y X) in hexadecimal, followed by a full
 \             stop and a carriage return
 \
+\ ------------------------------------------------------------------------------
+\
+\ Returns:
+\
+\   X                   X is preserved
+\
+\   Y                   Y is preserved
+\
 \ ******************************************************************************
 
 .PrintHexWord
+
+ TYA                    \ Store X and Y on the stack
+ PHA
+ TXA
+ PHA
+
+ LDA #0                 \ Set the colour to non-highlight
+ JSR SetColour
 
  TYA                    \ Print the value in Y in hexadecimal
  JSR PrintHexByte
@@ -1373,7 +1599,10 @@
  TXA                    \ Print the value in X in hexadecimal
  JSR PrintHexByte
 
-                        \ So we have just printed (Y X) in hexadecimal
+ PLA                    \ Retrieve X and Y from the stack
+ TAX
+ PLA
+ TAY
 
  RTS                    \ Return from the subroutine
 
