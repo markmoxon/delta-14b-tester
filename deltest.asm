@@ -6,9 +6,9 @@
 \
 \ ******************************************************************************
 
- CODE% = &2400          \ The address where the code will be run
+ CODE% = &4000          \ The address where the code will be run
 
- LOAD% = &FF2400        \ The address where the code will be loaded
+ LOAD% = &FF4000        \ The address where the code will be loaded
 
  VIA = &FE00            \ Memory-mapped space for accessing internal hardware,
                         \ such as the video ULA, 6845 CRTC and 6522 VIAs (also
